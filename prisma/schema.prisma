@@ -1,0 +1,670 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator drizzle {
+  provider = "drizzle-prisma-generator"
+  output   = "../drizzle" // Where to put generated Drizle tables
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String             @id @default(cuid())
+  email                 String             @unique
+  passwordHash          String?
+  profilePhotoUrl       String?
+  profilePhotoId        String?
+  firstName             String
+  lastName              String
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  socialLogins          SocialLogin[]
+  userSubscriptions     UserSubscription[]
+  workoutLogs           WorkoutLog[]
+  programLogs           ProgramLog[]
+  userRoutines          Routine[]
+  userPrograms          Program[]
+  leaderboardScores     Leaderboard[]
+  scheduledWorkouts     WorkoutSession[]
+  scheduledAppointments Appointment[]
+
+  role                  Role
+  fitnessProfile        FitnessProfile?
+}
+
+model FitnessProfile {
+  id                                  String        @id @default(cuid())
+  user                                User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId                              String        @unique
+  heightUnit                          HeightUnit    @default(inches)
+  height                              Int?
+  unit                                LoadUnit      @default(pound)
+  currentWeight                       Int?
+  targetWeight                        Int?
+  goal_fatLoss                             Boolean?
+  goal_endurance                           Boolean?
+  goal_buildMuscle                         Boolean?
+  goal_loseWeight                          Boolean?
+  goal_improveBalance                      Boolean?
+  goal_improveFlexibility                  Boolean?
+  goal_learnNewSkills                      Boolean?
+  parq_heartCondition                      Boolean?
+  parq_chestPainActivity                   Boolean?
+  parq_chestPainNoActivity                 Boolean?
+  parq_balanceConsciousness                Boolean?
+  parq_boneJoint                           Boolean?
+  parq_bloodPressureMeds                   Boolean?
+  parq_otherReasons                        Boolean?
+  operational_occupation                          String?
+  operational_extendedSitting                     Boolean?
+  operational_repetitiveMovements                 Boolean?
+  operational_explanation_repetitiveMovements     String?
+  operational_heelShoes                           Boolean?
+  operational_mentalStress                        Boolean?
+  recreational_physicalActivities                  Boolean?
+  recreational_explanation_physicalActivities      String?
+  recreational_hobbies                             Boolean?
+  recreational_explanation_hobbies                 String?
+  medical_injuriesPain                        Boolean?
+  medical_explanation_injuriesPain            String?
+  medical_surgeries                           Boolean?
+  medical_explanation_surgeries               String?
+  medical_chronicDisease                      Boolean?
+  medical_explanation_chronicDisease          String?
+  medical_medications                         Boolean?
+  medical_explanation_medications             String?
+}
+
+model SocialLogin {
+  id             String    @id @default(cuid())
+  provider       String
+  providerUserId String
+  user           User   @relation(fields: [userId], references: [id])
+  userId         String
+
+  @@unique([provider, providerUserId])
+}
+
+model Subscription {
+  id                String             @id @default(cuid())
+  name              String
+  price             Decimal
+  description       String?
+  userSubscriptions UserSubscription[]
+}
+
+model UserSubscription {
+  id             String          @id @default(cuid())
+  user           User            @relation(fields: [userId], references: [id])
+  userId         String
+  subscription   Subscription    @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String
+  startDate      DateTime
+  endDate        DateTime?
+}
+
+model Program {
+  id             String           @id @default(cuid())
+  name           String
+  description    String?
+  isFree         Boolean          @default(false)
+  price          Decimal?
+
+  youtubeLink    String?
+  s3ImageKey     String?
+  s3VideoKey     String?
+  muxPlaybackId  String?
+
+  routines       ProgramRoutine[]
+  weeks          ProgramWeek[]
+  programLogs    ProgramLog[]
+
+  user           User?            @relation(fields: [userId], references: [id])
+  userId         String?
+}
+
+model Routine {
+  id            String             @id @default(cuid())
+  name          String
+  description   String?
+  isFree        Boolean?            @default(false)
+
+  youtubeLink   String?
+  s3ImageKey    String?
+  s3VideoKey    String?
+
+  programs      ProgramRoutine[]
+  exercises     RoutineExercise[]
+  workoutLogs   WorkoutLog[]
+  leaderboard   Leaderboard[]
+  sessions      WorkoutSession[]
+
+  createdAt     DateTime           @default(now())
+  
+  user        User?                @relation(fields: [userId], references: [id])
+  userId      String?
+}
+
+// model UserProgram {
+//   user        User      @relation(fields: [userId], references: [id])
+//   userId      String
+//   program     Program   @relation(fields: [programId], references: [id])
+//   programId   String
+
+//   @@id([userId, programId])
+// }
+
+// model UserRoutine {
+//   user        User      @relation(fields: [userId], references: [id])
+//   userId      String
+//   routine     Routine   @relation(fields: [routineId], references: [id])
+//   routineId   String
+
+//   @@id([userId, routineId])
+// }
+
+model ProgramWeek {
+  id          String             @id @default(cuid())
+  program     Program            @relation(fields: [programId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  programId   String
+
+  weekNumber  Int
+  days        ProgramDay[]
+}
+
+model ProgramDay {
+  id               String         @id @default(cuid())
+  programWeek      ProgramWeek    @relation(fields: [programWeekId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  programWeekId    String
+
+  dayNumber        Int
+  movementPrep     MovementPrep   @relation(fields: [movementPrepId], references: [id])
+  movementPrepId   String
+  warmup           Warmup         @relation(fields: [warmupId], references: [id])
+  warmupId         String
+  blocks           ProgramBlock[]
+  cooldown         Cooldown       @relation(fields: [cooldownId], references: [id])
+  cooldownId       String
+}
+
+model ProgramBlock {
+  id             String         @id @default(cuid())
+  programDay     ProgramDay    @relation(fields: [programDayId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  programDayId   String
+
+  blockNumber    Int
+  exercises      BlockExercise[]
+}
+
+model ProgramRoutine {
+  program   Program @relation(fields: [programId], references: [id])
+  programId String
+  routine   Routine @relation(fields: [routineId], references: [id])
+  routineId String
+
+  @@id([programId, routineId])
+}
+
+model MovementPrep {
+  id            String              @id @default(cuid())
+  name          String
+  description   String?
+  programDays   ProgramDay[]
+  foamRolling   FoamRollingExercise[]
+  mobility      MobilityExercise[]
+  activation    ActivationExercise[]
+}
+
+model FoamRollingExercise {
+  movementPrep      MovementPrep     @relation(fields: [movementPrepId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  movementPrepId    String
+  exercise          Exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exerciseId        String
+  reps              Int
+  time              Int?
+
+  @@id([movementPrepId, exerciseId])
+}
+
+model MobilityExercise {
+  movementPrep      MovementPrep     @relation(fields: [movementPrepId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  movementPrepId    String
+  exercise          Exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exerciseId        String
+  reps              Int
+  time              Int?
+
+  @@id([movementPrepId, exerciseId])
+}
+
+model ActivationExercise {
+  movementPrep      MovementPrep     @relation(fields: [movementPrepId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  movementPrepId    String
+  exercise          Exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exerciseId        String
+  reps              Int
+  time              Int?
+
+  @@id([movementPrepId, exerciseId])
+}
+
+model Warmup {
+  id            String              @id @default(cuid())
+  name          String
+  description   String?
+  programDays   ProgramDay[]
+  dynamic       DynamicExercise[]
+  ladder        LadderExercise[]
+  power         PowerExercise[]
+}
+
+model DynamicExercise {
+  warmup      Warmup     @relation(fields: [warmupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  warmupId    String
+  exercise    Exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exerciseId  String
+  reps        Int
+
+  @@id([warmupId, exerciseId])
+}
+
+model LadderExercise {
+  warmup      Warmup     @relation(fields: [warmupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  warmupId    String
+  exercise    Exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exerciseId  String
+  reps        Int
+
+  @@id([warmupId, exerciseId])
+}
+
+model PowerExercise {
+  warmup      Warmup     @relation(fields: [warmupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  warmupId    String
+  exercise    Exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exerciseId  String
+  reps        Int
+
+  @@id([warmupId, exerciseId])
+}
+
+model Cooldown {
+  id            String              @id @default(cuid())
+  name          String
+  description   String?
+  programDays   ProgramDay[]
+  exercises     CooldownExercise[]
+}
+
+model CooldownExercise {
+  cooldown    Cooldown     @relation(fields: [cooldownId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cooldownId  String
+  exercise    Exercise     @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exerciseId  String
+  reps        Int?
+  time        Int?
+
+  @@id([cooldownId, exerciseId])
+}
+
+model Exercise {
+  id            String              @id @default(cuid())
+  name          String
+  description   String?
+  isFree        Boolean             @default(false)
+  routines      RoutineExercise[]
+  blocks        BlockExercise[]
+  foamRolling   FoamRollingExercise[]
+  mobility      MobilityExercise[]
+  activation    ActivationExercise[]
+  dynamic       DynamicExercise[]
+  ladder        LadderExercise[]
+  power         PowerExercise[]
+  cooldown      CooldownExercise[]
+  exerciseLogs  ExerciseLog[]
+  cues          String[]
+  tips          String[]
+
+  youtubeLink   String?
+  s3ImageKey    String?
+  s3VideoKey    String?
+  muxPlaybackId String?
+  tags          String[]
+
+  balance       BalanceType?
+  balanceLevel  BalanceLevel?
+  body          BodyFocus[]
+  contraction   ContractionType?
+  equipment     Equipment[]
+  joint         Joint[]
+  lift          LiftType?
+  muscles       MuscleGroup[]
+  pattern       MovementPattern[]
+  plane         MovementPlane[]
+  stretch       StretchType?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model RoutineExercise {
+  routine           Routine          @relation(fields: [routineId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  routineId         String
+  exercise          Exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exerciseId        String
+  orderInRoutine    Int
+  circuitId         String?
+  sets              String?
+  target            ExerciseTarget
+  reps              String?
+  time              String?
+  notes             String?
+  rest              String
+  rpe               Int              @default(1)
+  side              Side?
+
+  @@id([routineId, exerciseId])
+}
+
+model BlockExercise {
+  block                   ProgramBlock          @relation(fields: [programBlockId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  programBlockId          String
+  exercise                Exercise              @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exerciseId              String
+  orderInBlock            Int
+  sets                    Int?
+  target                  ExerciseTarget
+  reps                    Int?
+  time                    Int?
+  notes                   String?
+  rest                    Int?
+  side                    Side?
+  programExerciseLogs     ProgramExerciseLog[]
+
+  @@id([programBlockId, exerciseId])
+}
+
+model ProgramLog {
+  id            String        @id @default(cuid())
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId        String
+  program       Program       @relation(fields: [programId], references: [id])
+  programId     String
+  programWeek   Int           @default(1)
+  programDay    Int           @default(1)
+  date          DateTime      @default(now())
+  duration      String        
+  exerciseLogs  ProgramExerciseLog[]
+}
+
+model ProgramExerciseLog {
+  id                 String             @id @default(cuid())
+  programLog         ProgramLog         @relation(fields: [programLogId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  programLogId       String
+  blockExercise      BlockExercise      @relation(fields: [programBlockId, exerciseId], references: [programBlockId, exerciseId])
+  programBlockId     String
+  exerciseId         String
+  sets               ProgramExerciseLogSet[]
+}
+
+model ProgramExerciseLogSet {
+  id                     String               @id @default(cuid())
+  programExerciseLog     ProgramExerciseLog   @relation(fields: [programExerciseLogId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  programExerciseLogId   String
+  set                    String
+  actualReps             String?
+  load                   Float?
+  notes                  String?
+  unit                   LoadUnit             @default(pound)
+}
+
+model WorkoutLog {
+  id            String        @id @default(cuid())
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId        String
+  routine       Routine       @relation(fields: [routineId], references: [id])
+  routineId     String
+  date          DateTime      @default(now())
+  duration      String        
+  exerciseLogs  ExerciseLog[]
+}
+
+model ExerciseLog {
+  id              String        @id @default(cuid())
+  workoutLog      WorkoutLog    @relation(fields: [workoutLogId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  workoutLogId    String
+  exercise        Exercise      @relation(fields: [exerciseId], references: [id])
+  exerciseId      String
+  circuitId       String?
+  orderInRoutine  Int
+  target          ExerciseTarget
+  time            String?
+  targetReps      String?
+  sets            ExerciseLogSet[]
+}
+
+model ExerciseLogSet {
+  id              String        @id @default(cuid())
+  exerciseLog     ExerciseLog   @relation(fields: [exerciseLogId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exerciseLogId   String
+  set             String
+  actualReps      String?
+  load            Float?
+  notes           String?
+  unit            LoadUnit      @default(pound)
+}
+
+model WorkoutSession {
+  id         String       @id @default(cuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  routineId  String
+  routine    Routine      @relation(fields: [routineId], references: [id])
+  startTime  DateTime
+  endTime    DateTime
+  // type       SessionType
+  recurrence Recurrence?
+}
+
+model Coach {
+  id               String          @id @default(cuid())
+  name             String
+  availability     Availability[]
+  appointments     Appointment[]
+}
+
+model Availability {
+  id           String       @id @default(cuid())
+  coachId      String
+  coach        Coach        @relation(fields: [coachId], references: [id])
+  dayOfWeek    Int // 0 = Sunday, 1 = Monday, etc.
+  startTime    DateTime
+  endTime      DateTime
+}
+
+model Appointment {
+  id         String       @id @default(cuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  coachId    String
+  coach      Coach        @relation(fields: [coachId], references: [id])
+  startTime  DateTime
+  endTime    DateTime
+  type       AppointmentType
+}
+
+enum AppointmentType {
+  GOAL_SETTING
+  FOLLOWUP
+}
+
+model Leaderboard {
+  id       Int      @id @default(autoincrement())
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+  routine  Routine  @relation(fields: [routineId], references: [id])
+  routineId String
+  score    Int
+  date     DateTime @default(now())
+}
+
+enum Role {
+  admin
+  user
+}
+
+// Enums for Exercise Properties
+enum BalanceType {
+  bilateral
+  unilateral
+}
+
+enum BalanceLevel {
+  static
+  dynamic
+}
+
+enum BodyFocus {
+  upper
+  lower
+  core
+  full
+}
+
+enum ContractionType {
+  isometric
+  isotonic
+}
+
+enum Equipment {
+  bodyweight
+  dumbbell
+  kettlebell
+  barbell
+  resistance_band
+  suspension
+  parallette
+  slider_discs
+  gymnastics_rings
+  foam_roller
+  medicine_ball
+  sled
+  bike
+  plyo_box
+  bench
+  cable_machine
+}
+
+enum Joint {
+  ankle
+  knee
+  hip
+  shoulder
+  elbow
+  wrist
+}
+
+enum LiftType {
+  compound
+  isolation
+}
+
+enum HeightUnit {
+  inches
+  centimeters
+}
+
+enum LoadUnit {
+  bodyweight
+  kilogram
+  pound
+}
+
+enum MuscleGroup {
+  quads
+  hamstrings
+  glutes
+  calves
+  shoulders
+  biceps
+  triceps
+  forearms
+  pecs
+  lats
+  traps
+  hip_flexors
+  erectors
+  adductors
+  abductors
+  abs
+  obliques
+  serratus
+  pelvic_floor
+}
+
+enum MovementPattern {
+  push
+  pull
+  core
+  squat
+  hinge
+  lunge
+  rotational
+  locomotive
+}
+
+enum MovementPlane {
+  frontal
+  sagittal
+  transverse
+}
+
+enum StretchType {
+  static
+  dynamic
+}
+
+enum SectionType {
+  warmup
+  main
+  cooldown
+}
+
+enum GroupType {
+  circuit
+  regular
+}
+
+enum ExerciseTarget {
+  reps
+  time
+}
+
+enum Side {
+  left
+  right
+  none
+}
+
+// enum SessionType {
+//   STUDY
+//   NAP
+//   FOCUS
+// }
+
+enum Recurrence {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
