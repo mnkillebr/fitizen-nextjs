@@ -42,7 +42,7 @@ export default function Home() {
             <Link
               href="login"
               className={clsx(
-                "flex items-center text-primary-foreground bg-primary",
+                "flex items-center text-foreground dark:text-background bg-primary",
                 "py-2 pl-3 pr-2 rounded-md hover:bg-primary/90 shadow",
                 "text-sm"
               )}

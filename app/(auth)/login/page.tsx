@@ -5,14 +5,23 @@ import clsx from "clsx";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import Form from "next/form";
+import { login } from "@/app/actions/login-action";
+import { useActionState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 // import { createSupabaseClient } from "~/utils/supabase.server";
 
 export default function Login() {
+  const [state, dispatch] = useActionState(login, undefined);
 	return (
-		<div className="flex text-center text-foreground min-w-[500px]">
-      <div className="border dark:border-border-muted rounded-md p-6 w-full max-w-2xl h-[300px]">
-        <h1 className="font-bold text-3xl mb-8">Log In</h1>
-        <Form action="/login" className="mx-auto">
+		<Card className="flex text-foreground min-w-[400px] md:min-w-[500px]">
+      <CardHeader>
+        <CardTitle>Log In</CardTitle>
+        <CardDescription>
+          Enter your email address to log in
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="max-w-2xl min-h-[200px]">
+        <Form action={dispatch} className="mx-auto">
           <div className="pb-4 text-left">
             <Input
               type="email"
@@ -30,12 +39,12 @@ export default function Login() {
             {/* <ErrorMessage>{actionData?.errors?.email}</ErrorMessage> */}
           </div>
           {/* <PrimaryButton className="mx-auto w-full text-foreground">Log In</PrimaryButton> */}
-          <Button className="w-full">Log In</Button>
+          <Button className="w-full text-foreground dark:text-background">Log In</Button>
         </Form>
         <Separator className="my-6 dark:bg-border-muted"/>
         {/* <PrimaryButton className="mx-auto w-full text-foreground">Log In with Google</PrimaryButton> */}
         <Button
-          className="w-full"
+          className="w-full text-foreground dark:text-background"
           onClick={() => {
             // submit({ "_action": "google_auth" }, { method: "POST" })
           }}
@@ -60,7 +69,7 @@ export default function Login() {
           </svg>
           Continue with Google
         </Button>
-      </div>
-		</div>
+      </CardContent>
+		</Card>
 	)
 }

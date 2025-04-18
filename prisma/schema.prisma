@@ -10,7 +10,7 @@ generator client {
 
 generator drizzle {
   provider = "drizzle-prisma-generator"
-  output   = "../drizzle" // Where to put generated Drizle tables
+  output   = "../db/schema.ts" // Where to put generated Drizle tables
 }
 
 datasource db {
