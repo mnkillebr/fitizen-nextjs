@@ -9,7 +9,7 @@ import Form from "next/form";
 import { registerWithEmail } from "@/app/actions/register-action";
 import { useActionState } from "react";
 
-export default function ValidateMagicLink() {
+export default function SetupProfile() {
   const [state, dispatch] = useActionState(registerWithEmail, undefined);
 
 	return (

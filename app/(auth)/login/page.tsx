@@ -5,10 +5,9 @@ import clsx from "clsx";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import Form from "next/form";
-import { login } from "@/app/actions/login-action";
+import { login, googleSignIn } from "@/app/actions/login-action";
 import { useActionState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-// import { createSupabaseClient } from "~/utils/supabase.server";
 
 export default function Login() {
   const [state, dispatch] = useActionState(login, undefined);
@@ -27,7 +26,6 @@ export default function Login() {
               type="email"
               name="email"
               required
-              // defaultValue={actionData?.email}
               autoComplete="off"
               placeholder="Enter email address"
               className={clsx(
@@ -36,18 +34,14 @@ export default function Login() {
                 "dark:border-border-muted dark:focus:border-ring"
               )}
             />
-            {/* <ErrorMessage>{actionData?.errors?.email}</ErrorMessage> */}
           </div>
-          {/* <PrimaryButton className="mx-auto w-full text-foreground">Log In</PrimaryButton> */}
           <Button className="w-full text-foreground dark:text-background">Log In</Button>
         </Form>
         <Separator className="my-6 dark:bg-border-muted"/>
-        {/* <PrimaryButton className="mx-auto w-full text-foreground">Log In with Google</PrimaryButton> */}
         <Button
+          id="google-auth-button"
           className="w-full text-foreground dark:text-background"
-          onClick={() => {
-            // submit({ "_action": "google_auth" }, { method: "POST" })
-          }}
+          onClick={googleSignIn}
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path

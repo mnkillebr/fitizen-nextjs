@@ -2,7 +2,7 @@ import 'server-only'
 
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
-import { SessionPayload } from './definitions'
+import { SessionPayload, SetupProfilePayload } from './definitions'
 import { AUTH_SESSION_MAX_AGE, MAGIC_LINK_MAX_AGE } from '@/lib/magicNumbers'
  
 const secretKey = process.env.AUTH_COOKIE_SECRET
@@ -89,13 +89,13 @@ export async function deleteNonce() {
   cookieStore.delete('fitizen__nonce')
 }
 
-export async function createMagicLinkEmail(email: string) {
-  const magicLinkEmail = await encrypt({ email })
+export async function createSetupProfile({ email, provider, provider_user_id }: SetupProfilePayload) {
+  const setupProfile = await encrypt({ email, provider, provider_user_id })
   const cookieStore = await cookies()
   const currentDate = new Date()
   const expiresAt = new Date(currentDate.getTime() + MAGIC_LINK_MAX_AGE)
 
-  cookieStore.set('fitizen__magic_link_email', magicLinkEmail, {
+  cookieStore.set('fitizen__setup_profile', setupProfile, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
@@ -104,7 +104,7 @@ export async function createMagicLinkEmail(email: string) {
   })
 }
 
-export async function deleteMagicLinkEmail() {
+export async function deleteSetupProfile() {
   const cookieStore = await cookies()
-  cookieStore.delete('fitizen__magic_link_email')
+  cookieStore.delete('fitizen__setup_profile')
 }
