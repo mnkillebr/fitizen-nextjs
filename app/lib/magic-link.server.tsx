@@ -26,7 +26,7 @@ export async function generateMagicLink(email: string, nonce: string) {
     throw new Error("Missing env: ORIGIN");
   }
   const url = new URL(ORIGIN);
-  url.pathname = "/validate-magic-link/api";
+  url.pathname = "/validate-magic-link";
   url.searchParams.set("magic", encryptedPayload);
   return url.toString();
 };

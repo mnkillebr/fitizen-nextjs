@@ -31,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/validate-magic-link/api"],
+  matcher: ["/validate-magic-link"],
 };
