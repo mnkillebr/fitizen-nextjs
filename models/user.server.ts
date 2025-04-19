@@ -48,6 +48,6 @@ export async function createUserWithProvider(
     provider,
     providerUserId,
   });
-  // Return the created user
+  // Return the created user and social login
   return { user: newUser, socialLogin: newSocialLogin };
 }
