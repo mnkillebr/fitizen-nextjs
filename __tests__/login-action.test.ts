@@ -1,48 +1,40 @@
-import { jest } from '@jest/globals';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { login, googleSignIn } from '../app/actions/login-action';
 import { createClient } from '../app/lib/supabase.server';
 import { redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 // Mock the required modules
-jest.mock('../app/lib/supabase.server', () => ({
-  createClient: jest.fn(),
+vi.mock('../app/lib/supabase.server', () => ({
+  createClient: vi.fn(),
 }));
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
 }));
 
-jest.mock('next/server', () => ({
+vi.mock('next/server', () => ({
   NextResponse: {
-    json: jest.fn().mockImplementation((data, init) => ({
+    json: vi.fn().mockImplementation((data, init) => ({
       ...((typeof data === 'object' && data) || {}),
       ...((typeof init === 'object' && init) || {}),
     })),
   },
 }));
 
-jest.mock('../app/lib/magic-link.server', () => ({
-  generateMagicLink: jest.fn().mockResolvedValue('http://test-magic-link.com') as unknown as jest.Mock,
-  sendMagicLinkEmail: jest.fn().mockResolvedValue(true) as unknown as jest.Mock,
+vi.mock('../app/lib/magic-link.server', () => ({
+  generateMagicLink: vi.fn().mockResolvedValue('http://test-magic-link.com'),
+  sendMagicLinkEmail: vi.fn().mockResolvedValue(true),
 }));
 
-jest.mock('../app/lib/sessions', () => ({
-  createNonce: jest.fn().mockResolvedValue(true) as unknown as jest.Mock,
+vi.mock('../app/lib/sessions', () => ({
+  createNonce: vi.fn().mockResolvedValue(true),
 }));
-
-// Mock Supabase client
-const mockSupabase = {
-  auth: {
-    signInWithOAuth: jest.fn(),
-  },
-};
-
-(createClient as jest.Mock).mockReturnValue(mockSupabase);
 
 describe('Login Actions', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('login', () => {
@@ -68,12 +60,12 @@ describe('Login Actions', () => {
     });
 
     it('should handle server errors gracefully', async () => {
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+      vi.spyOn(console, 'error').mockImplementation(() => {});
       const formData = new FormData();
       formData.append('email', 'test@example.com');
 
       // Mock a failure in generateMagicLink
-      jest.spyOn(require('../app/lib/magic-link.server'), 'generateMagicLink')
+      vi.spyOn(await import('../app/lib/magic-link.server'), 'generateMagicLink')
         .mockRejectedValueOnce(new Error('Test error'));
 
       const result = await login(null, formData);
@@ -86,10 +78,20 @@ describe('Login Actions', () => {
 
   describe('googleSignIn', () => {
     it('should redirect to Supabase URL on successful sign-in', async () => {
-      (mockSupabase.auth.signInWithOAuth as jest.Mock).mockResolvedValue({
-        data: { url: 'http://supabase-redirect-url.com' },
-        error: null,
-      });
+      const mockSupabase = {
+        auth: {
+          signInWithOAuth: vi.fn().mockResolvedValue({
+            data: { url: 'http://supabase-redirect-url.com' },
+            error: null,
+          }),
+        },
+        supabaseUrl: 'http://test-supabase-url.com',
+        supabaseKey: 'test-key',
+        realtime: {},
+        realtimeUrl: 'http://test-realtime-url.com',
+      } as unknown as SupabaseClient;
+
+      vi.mocked(createClient).mockResolvedValue(mockSupabase);
 
       await googleSignIn();
 
@@ -97,10 +99,20 @@ describe('Login Actions', () => {
     });
 
     it('should handle Supabase auth errors', async () => {
-      (mockSupabase.auth.signInWithOAuth as jest.Mock).mockResolvedValue({
-        data: null,
-        error: { message: 'Auth error' },
-      });
+      const mockSupabase = {
+        auth: {
+          signInWithOAuth: vi.fn().mockResolvedValue({
+            data: null,
+            error: { message: 'Auth error' },
+          }),
+        },
+        supabaseUrl: 'http://test-supabase-url.com',
+        supabaseKey: 'test-key',
+        realtime: {},
+        realtimeUrl: 'http://test-realtime-url.com',
+      } as unknown as SupabaseClient;
+
+      vi.mocked(createClient).mockResolvedValue(mockSupabase);
 
       const result = await googleSignIn();
 
@@ -111,8 +123,18 @@ describe('Login Actions', () => {
     });
 
     it('should handle unexpected errors gracefully', async () => {
-      (mockSupabase.auth.signInWithOAuth as jest.Mock).mockRejectedValue(new Error('Unexpected error'));
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+      const mockSupabase = {
+        auth: {
+          signInWithOAuth: vi.fn().mockRejectedValue(new Error('Unexpected error')),
+        },
+        supabaseUrl: 'http://test-supabase-url.com',
+        supabaseKey: 'test-key',
+        realtime: {},
+        realtimeUrl: 'http://test-realtime-url.com',
+      } as unknown as SupabaseClient;
+
+      vi.mocked(createClient).mockResolvedValue(mockSupabase);
+      vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const result = await googleSignIn();
 
