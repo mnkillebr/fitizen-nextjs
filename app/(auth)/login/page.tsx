@@ -14,8 +14,8 @@ export default function Login() {
 	return (
 		<Card className="flex text-foreground min-w-[400px] md:min-w-[500px]">
       <CardHeader>
-        <CardTitle>Log In</CardTitle>
-        <CardDescription>
+        <CardTitle data-testid="login-title" id="login-title">Log In</CardTitle>
+        <CardDescription data-testid="login-description" id="login-description">
           Enter your email address to log in
         </CardDescription>
       </CardHeader>
@@ -25,6 +25,7 @@ export default function Login() {
             <Input
               type="email"
               name="email"
+              data-testid="email-input"
               required
               autoComplete="off"
               placeholder="Enter email address"
@@ -34,11 +35,14 @@ export default function Login() {
                 "dark:border-border-muted dark:focus:border-ring"
               )}
             />
+            {state?.errors?.email && <p data-testid="email-error" className="text-red-500 text-sm">{state.errors.email[0]}</p>}
           </div>
-          <Button className="w-full text-foreground dark:text-background">Log In</Button>
+          <Button data-testid="login-button" id="login-button" className="w-full text-foreground dark:text-background">Log In</Button>
+          {state?.server_error && <p data-testid="server-error" className="text-red-500 text-sm">{state.server_error}</p>}
         </Form>
         <Separator className="my-6 dark:bg-border-muted"/>
         <Button
+          data-testid="google-auth-button"
           id="google-auth-button"
           className="w-full text-foreground dark:text-background"
           onClick={googleSignIn}
