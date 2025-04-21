@@ -9,8 +9,11 @@ import { DarkModeToggle } from "@/components/DarkModeToggle";
 import Link from "next/link";
 import clsx from "clsx";
 import logo from "@/assets/fitizen-logo.svg";
+import { existingSession } from "@/app/lib/dal";
 
-export default function Home() {
+export default async function Home() {
+  const session = await existingSession();
+
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen pt-8 px-8 gap-16 font-[family-name:var(--font-geist-sans)]">
       <header className="absolute lg:max-w-5xl xl:max-w-7xl 2xl:max-w-[1536px] justify-between w-full top-0 z-50 dark:bg-background px-8 lg:px-4">
@@ -40,14 +43,14 @@ export default function Home() {
           <div className="hidden md:flex md:flex-1 md:justify-end gap-4">
             <DarkModeToggle />
             <Link
-              href="login"
+              href={session ? "/dashboard" : "/login"}
               className={clsx(
                 "flex items-center text-foreground dark:text-background bg-primary",
                 "py-2 pl-3 pr-2 rounded-md hover:bg-primary/90 shadow",
                 "text-sm"
               )}
             >
-              <div>Log In</div>
+              <div>{session ? "Dashboard" : "Log In"}</div>
               <ChevronRight className="h-4 w-4"/>
             </Link>
           </div>

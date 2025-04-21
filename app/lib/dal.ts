@@ -6,6 +6,12 @@ import { redirect } from 'next/navigation'
 import { cache } from 'react'
 import { getUserByEmail, getUserById } from '@/models/user.server'
 
+export const existingSession = cache(async () => {
+  const authSession = (await cookies()).get('fitizen__auth_session')?.value
+  const payload = await decrypt(authSession)
+  return payload
+})
+
 export const verifySession = cache(async () => {
   const authSession = (await cookies()).get('fitizen__auth_session')?.value
   const payload = await decrypt(authSession)
@@ -33,10 +39,7 @@ export const getCurrentUser = cache(async () => {
   }
 })
 
-export const magicLinkGetUser = cache(async (email: string) => {
-  // const session = await verifySession()
-  // if (!session) return null
- 
+export const magicLinkGetUser = cache(async (email: string) => { 
   try {
     const data = await getUserByEmail(email)
  

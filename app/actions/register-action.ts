@@ -5,6 +5,7 @@ import { createUser, createUserWithProvider } from "@/models/user.server";
 import { redirect } from "next/navigation";
 import { decrypt, deleteSetupProfile, deleteNonce, createAuthSession } from "../lib/sessions";
 import { cookies, headers } from "next/headers";
+import { NextResponse } from "next/server";
 
 export async function registerWithEmail(prevState: unknown, formData: FormData) {
   const validatedFields = registerWithEmailSchema.safeParse({
@@ -28,9 +29,11 @@ export async function registerWithEmail(prevState: unknown, formData: FormData) 
     if (setupProfilePayload?.provider) {
       const userWithProviderData = await createUserWithProvider(setupProfilePayload?.email as string, first_name, last_name, setupProfilePayload?.provider as string, setupProfilePayload?.provider_user_id as string);
       user = userWithProviderData.user
-    } else {
+    } else if (setupProfilePayload?.email) {
       const userData = await createUser(setupProfilePayload?.email as string, first_name, last_name);
       user = userData[0]
+    } else {
+      NextResponse.redirect(`${process.env.ORIGIN}/login`, { status: 401 })
     }
 
     if (user) {
