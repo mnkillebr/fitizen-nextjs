@@ -4,9 +4,9 @@ import { getMagicLinkPayloadByRequest, invalidMagicLink } from "./app/lib/magic-
 import { MAGIC_LINK_MAX_AGE } from "./lib/magicNumbers";
 import { cookies } from "next/headers";
 import { decrypt } from "./app/lib/sessions";
-
+import { MagicLinkPayload } from "./app/lib/definitions";
 export async function middleware(request: NextRequest) {
-  const magicLinkPayload = await getMagicLinkPayloadByRequest(request);
+  const magicLinkPayload = await getMagicLinkPayloadByRequest(request) as MagicLinkPayload;
   
   // Check magic link expiration
   const createdAt = new Date(magicLinkPayload.createdAt);

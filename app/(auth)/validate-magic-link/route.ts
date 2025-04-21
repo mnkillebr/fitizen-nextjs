@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateMagicLinkUser } from "@/app/lib/dal";
-import { getMagicLinkPayloadByRequest, type MagicLinkPayload } from "@/app/lib/magic-link.server";
+import { getMagicLinkPayloadByRequest } from "@/app/lib/magic-link.server";
 import { redirect } from "next/navigation";
 import { createSetupProfile } from "@/app/lib/sessions";
+import { MagicLinkPayload } from "@/app/lib/definitions";
 
 
 export async function GET(request: NextRequest) {

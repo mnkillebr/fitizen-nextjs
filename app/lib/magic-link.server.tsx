@@ -50,12 +50,12 @@ export async function getMagicLinkPayloadByRequest(request: NextRequest) {
   const magic = url.searchParams.get("magic") as string;
   
   if (typeof magic !== "string") {
-    throw invalidMagicLink("'magic' search parameter does not exist", request);
+    return invalidMagicLink("'magic' search parameter does not exist", request);
   }
 
   const magicLinkPayload = await decrypt(magic);
   if (!isMagicLinkPayload(magicLinkPayload)) {
-    throw invalidMagicLink("invalid magic link payload", request);
+    return invalidMagicLink("invalid magic link payload", request);
   }
   return magicLinkPayload;
 };
