@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { login, googleSignIn } from '../app/actions/login-action';
-import { createClient } from '../app/lib/supabase.server';
+import { login, googleSignIn } from '../../app/actions/login-action';
+import { createClient } from '../../app/lib/supabase.server';
 import { redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 // Mock the required modules
-vi.mock('../app/lib/supabase.server', () => ({
+vi.mock('../../app/lib/supabase.server', () => ({
   createClient: vi.fn(),
 }));
 
@@ -23,12 +23,12 @@ vi.mock('next/server', () => ({
   },
 }));
 
-vi.mock('../app/lib/magic-link.server', () => ({
+vi.mock('../../app/lib/magic-link.server', () => ({
   generateMagicLink: vi.fn().mockResolvedValue('http://test-magic-link.com'),
   sendMagicLinkEmail: vi.fn().mockResolvedValue(true),
 }));
 
-vi.mock('../app/lib/sessions', () => ({
+vi.mock('../../app/lib/sessions', () => ({
   createNonce: vi.fn().mockResolvedValue(true),
 }));
 
@@ -65,7 +65,7 @@ describe('Login Actions', () => {
       formData.append('email', 'test@example.com');
 
       // Mock a failure in generateMagicLink
-      vi.spyOn(await import('../app/lib/magic-link.server'), 'generateMagicLink')
+      vi.spyOn(await import('../../app/lib/magic-link.server'), 'generateMagicLink')
         .mockRejectedValueOnce(new Error('Test error'));
 
       const result = await login(null, formData);

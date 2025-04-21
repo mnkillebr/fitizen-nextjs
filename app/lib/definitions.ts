@@ -18,3 +18,9 @@ export const registerWithEmailSchema = z.object({
   first_name: z.string().min(1, "First name cannot be blank"),
   last_name: z.string().min(1, "Last name cannot be blank"),
 })
+
+export interface MagicLinkPayload {
+  email: string
+  nonce: string
+  createdAt: string
+}

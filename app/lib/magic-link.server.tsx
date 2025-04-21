@@ -3,16 +3,10 @@ import { magicLinkEmailTemplate } from "./email-templates";
 import { NextRequest, NextResponse } from "next/server";
 import { encrypt, decrypt } from "./sessions";
 import { MAGIC_LINK_MAX_AGE } from "@/lib/magicNumbers";
+import { MagicLinkPayload } from "./definitions";
 
 
 const { NODE_ENV, ORIGIN } = process.env
-
-
-export type MagicLinkPayload = {
-  email: string;
-  nonce: string;
-  createdAt: string;
-};
 
 
 export async function generateMagicLink(email: string, nonce: string) {

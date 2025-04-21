@@ -15,8 +15,8 @@ export default function SetupProfile() {
 	return (
     <Card className="min-w-[400px] md:min-w-[500px]">
       <CardHeader>
-        <CardTitle>Almost there!</CardTitle>
-        <CardDescription>
+        <CardTitle data-testid="setup-profile-title">Almost there!</CardTitle>
+        <CardDescription data-testid="setup-profile-description">
           Enter your name to complete the registration
         </CardDescription> 
       </CardHeader>
@@ -29,6 +29,7 @@ export default function SetupProfile() {
                 type="text"
                 name="first_name"
                 autoComplete="off"
+                data-testid="first-name-input"
                 className={clsx(
                   "w-full appearance-none border bg-background shadow-none",
                   "dark:bg-background dark:text-muted-foreground dark:focus:text-foreground",
@@ -44,6 +45,7 @@ export default function SetupProfile() {
                 type="text"
                 name="last_name"
                 autoComplete="off"
+                data-testid="last-name-input"
                 className={clsx(
                   "w-full appearance-none border bg-background shadow-none",
                   "dark:bg-background dark:text-muted-foreground dark:focus:text-foreground",
@@ -54,7 +56,8 @@ export default function SetupProfile() {
               />
             </div>
           </fieldset>
-          <Button className="mx-auto w-full text-foreground dark:text-background">Sign Up</Button>
+          <Button data-testid="signup-button" className="mx-auto w-full text-foreground dark:text-background">Sign Up</Button>
+          {state?.server_error && <p data-testid="server-error" className="text-red-500 text-sm">{state.server_error}</p>}
         </Form>
       </CardContent>
     </Card>

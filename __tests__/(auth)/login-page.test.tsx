@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { login, googleSignIn } from '../app/actions/login-action';
+import { login, googleSignIn } from '../../app/actions/login-action';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 
-vi.mock('../app/actions/login-action', () => ({
+vi.mock('../../app/actions/login-action', () => ({
   login: vi.fn().mockImplementation(() => Promise.resolve({ success: 'Magic link sent to email' })),
   googleSignIn: vi.fn().mockImplementation(() => Promise.resolve(NextResponse.json({ error: null }, { status: 200 }))),
 }));
 
-import Login from '../app/(auth)/login/page';
+import Login from '../../app/(auth)/login/page';
 import { NextResponse } from 'next/server';
 
 describe('Login Page', () => {
@@ -120,8 +120,10 @@ describe('Login Page', () => {
     const loginButton = screen.getByTestId('login-button');
     fireEvent.click(loginButton);
 
+    // check if the login action was called
     // Check if error message is displayed
     await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalled();
       expect(screen.getByTestId('server-error')).toBeInTheDocument();
     });
   });
