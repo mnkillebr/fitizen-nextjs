@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { AppSidebar } from "@/components/AppSidebar/app-sidebar";
 import { getCurrentUser } from "../lib/dal";
 import { redirect } from "next/navigation";
+import { HeaderBreadcrumbs } from "@/components/HeaderBreadcrumbs/header-breadcrumbs";
 
 export default async function DashboardLayout({
   children,
@@ -23,13 +24,13 @@ export default async function DashboardLayout({
             <div className="flex items-center gap-2 px-6">
               <SidebarTrigger className="-ml-1 hover:text-primary" />
               <Separator orientation="vertical" className="mr-2 h-4" />
-              <h1 className="text-2xl font-bold">Dashboard</h1>
+              <HeaderBreadcrumbs />
             </div>
             <div className="pr-6">
               <DarkModeToggle />
             </div>
           </header>
-          <main className="flex flex-1 flex-col gap-4 px-6 pt-0 mx-auto w-full max-w-[1440px]">
+          <main className="flex flex-1 flex-col gap-4 px-6 pt-0 mx-auto max-w-[1440px] w-full">
             {children}
           </main>
         </SidebarInset>
