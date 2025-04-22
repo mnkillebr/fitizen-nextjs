@@ -9,7 +9,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="flex flex-row absolute top-8 px-8 justify-between w-full lg:max-w-5xl xl:max-w-7xl 2xl:max-w-[1536px]">
+      <div className="flex flex-row absolute top-8 px-8 justify-between items-center w-full max-w-[1440px]">
         <div className="flex md:flex-1">
           <a href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Fitizen</span>

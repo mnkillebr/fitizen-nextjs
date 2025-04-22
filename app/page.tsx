@@ -16,7 +16,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen pt-8 px-8 gap-16 font-[family-name:var(--font-geist-sans)]">
-      <header className="absolute lg:max-w-5xl xl:max-w-7xl 2xl:max-w-[1536px] justify-between w-full top-0 z-50 dark:bg-background px-8 lg:px-4">
+      <header className="absolute max-w-[1440px] justify-between w-full top-0 z-50 dark:bg-background px-8 lg:px-4">
         <nav className="flex items-center justify-between pt-6 md:pt-8" aria-label="Global">
           <div className="flex md:flex-1">
             <a href="/" className="-m-1.5 p-1.5">
@@ -57,7 +57,7 @@ export default async function Home() {
         </nav>
 
       </header>
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+      <main className="flex flex-col gap-[32px] max-w-[1440px] row-start-2 items-center sm:items-start">
         <HeroSection />
         <FeaturesSection />
         <CTASection />
