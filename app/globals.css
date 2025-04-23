@@ -5,6 +5,7 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-muted: var(--background-muted);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -24,6 +25,7 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-border-muted: var(--border-muted);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -80,6 +82,7 @@
 
 .dark {
   --background: oklch(0.141 0.005 285.823);
+  --background-muted: oklch(0.27 0.0055 286.03);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.21 0.006 285.885);
   --card-foreground: oklch(0.985 0 0);
@@ -95,6 +98,7 @@
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
+  --border-muted: oklch(0.42 0.0098 285.97);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.554 0.135 66.442);
   --chart-1: oklch(0.488 0.243 264.376);

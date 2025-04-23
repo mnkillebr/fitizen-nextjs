@@ -13,7 +13,6 @@ import { usePathname } from "next/navigation";
 export function HeaderBreadcrumbs() {
   const pathname = usePathname();
   const pathnameParts = pathname.split("/");
-  console.log(pathnameParts, pathname);
   return (
     <Breadcrumb>
       <BreadcrumbList>

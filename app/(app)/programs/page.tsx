@@ -29,11 +29,18 @@ export default async function ProgramsPage({
                 <ImageCard
                   title={program.name}
                   // description={program.description ?? ""}
+                  description="Difficulty Level: Beginner"
                   imageUrl={program.s3ImageKey ?? ""}
                 />
               </Link>
             </div>
           ))}
+          <ImageCard
+            title="Pre/Post Natal Program"
+            description="Difficulty Level: Beginner"
+            imageUrl="https://res.cloudinary.com/dqrk3drua/image/upload/f_auto,q_auto/v1/fitizen/s2j4mlhnvppquh8j9jk9"
+            comingSoon={true}
+          />
         </div>
       </ScrollArea>
     </div>
