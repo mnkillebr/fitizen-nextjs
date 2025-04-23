@@ -57,7 +57,7 @@ export function NavMain() {
     <SidebarGroup>
       <SidebarMenu>
         {navLinks.map((item, item_idx) => {
-          const isActive = pathname === item.url;
+          const isActive = pathname.includes(item.url);
           return (
             <SidebarMenuItem key={item_idx}>
               <Link href={item.url}>

@@ -24,3 +24,12 @@ export interface MagicLinkPayload {
   nonce: string
   createdAt: string
 }
+
+export type ExerciseDialogProps = {
+  exercise: {
+    muxPlaybackId: string | null;
+    videoToken?: string;
+    cues: string[];
+    name: string;
+  }
+}
