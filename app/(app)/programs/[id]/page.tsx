@@ -16,7 +16,7 @@ export default async function ProgramIdPage({
   const program = await getProgramById(id);
   const { userId } = await verifySession();
   const userProgramLogs = await getUserProgramLogsByProgramId(userId as string, id);
-  
+
   // TODO: Add View Log links
 
   if (!program) {
@@ -49,7 +49,7 @@ export default async function ProgramIdPage({
             </div>
           </div>
           <Link
-            href={`/programs/log?id=${program.id}`}
+            href={`/programs/${program.id}/log`}
             className={clsx(
               "flex lg:hidden h-12 items-center justify-between shadow active:scale-95 rounded-full bg-slate-50",
               "hover:cursor-pointer dark:bg-background-muted dark:border dark:border-border-muted dark:shadow-border-muted",
@@ -86,7 +86,7 @@ export default async function ProgramIdPage({
               )}>
                 <p className="text-foreground">{program.description}</p>
               </div>
-              <Link href={`/programs/log?id=${program.id}`} className="flex-1">
+              <Link href={`/programs/${program.id}/log`} className="flex-1">
                 <div className={clsx(
                   "w-full h-full bg-background text-foreground rounded-lg hover:bg-background-muted transition-colors",
                   "dark:bg-background-muted shadow border dark:border-border-muted dark:shadow-border-muted",

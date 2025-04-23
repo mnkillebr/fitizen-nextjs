@@ -126,7 +126,7 @@ export async function getProgramById(id: string): Promise<NestedProgram | null> 
   return result;
 };
 
-export async function getUserProgramLogsByProgramId(userId: string, programId: string) {
+export function getUserProgramLogsByProgramId(userId: string, programId: string) {
   return db.select().from(ProgramLog)
     .where(and(eq(ProgramLog.userId, userId), eq(ProgramLog.programId, programId)));
 }
@@ -136,3 +136,7 @@ export function getAllPrograms(query: string) {
     .where(ilike(Program.name, `%${query}%`))
     .orderBy(desc(Program.name));
 };
+
+export function getProgramName(programId: string) {
+  return db.select({ name: Program.name }).from(Program).where(eq(Program.id, programId));
+}

@@ -29,7 +29,7 @@ export async function decrypt(session: string | undefined = '') {
 
 export async function createAuthSession({ id }: SessionPayload) {
   const currentDate = new Date()
-  const expiresAt = new Date(currentDate.getTime() + 60 * 60 * 1000)
+  const expiresAt = new Date(currentDate.getTime() + AUTH_SESSION_MAX_AGE)
   const authSession = await encrypt({ id })
   const cookieStore = await cookies()
  
