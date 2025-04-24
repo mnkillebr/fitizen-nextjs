@@ -17,6 +17,8 @@ import {
   LadderExercise,
   PowerExercise,
   CooldownExercise,
+  ProgramExerciseLog,
+  ProgramExerciseLogSet,
 } from "@/db/schema";
 import { eq, desc, ilike, and } from "drizzle-orm";
 
@@ -449,4 +451,70 @@ export async function getCooldownById(cooldownId: string): Promise<NestedCooldow
     ...cooldown[0],
     exercises
   };
+}
+
+interface ProgramExerciseLogType {
+  programBlockId: string;
+  exerciseId: string;
+  sets: Array<{
+    set: string;
+    actualReps?: string;
+    load?: number;
+    notes?: string;
+    unit: "bodyweight" | "kilogram" | "pound";
+  }>;
+}
+
+export async function saveUserProgramLog(
+  userId: string,
+  programId: string,
+  programWeek: number,
+  programDay: number,
+  duration: string,
+  exerciseLogs: ProgramExerciseLogType[]
+) {
+  // Start a transaction
+  return await db.transaction(async (tx) => {
+    // Create the program log
+    const [programLog] = await tx
+      .insert(ProgramLog)
+      .values({
+        id: crypto.randomUUID(),
+        userId,
+        programId,
+        programWeek,
+        programDay,
+        date: new Date(),
+        duration,
+      })
+      .returning();
+
+    // Create exercise logs and their sets
+    for (const exerciseLog of exerciseLogs) {
+      const [programExerciseLog] = await tx
+        .insert(ProgramExerciseLog)
+        .values({
+          id: crypto.randomUUID(),
+          programLogId: programLog.id,
+          programBlockId: exerciseLog.programBlockId,
+          exerciseId: exerciseLog.exerciseId,
+        })
+        .returning();
+
+      // Create sets for each exercise log
+      for (const set of exerciseLog.sets) {
+        await tx.insert(ProgramExerciseLogSet).values({
+          id: crypto.randomUUID(),
+          programExerciseLogId: programExerciseLog.id,
+          set: set.set,
+          actualReps: set.actualReps,
+          load: set.load,
+          notes: set.notes,
+          unit: set.unit,
+        });
+      }
+    }
+
+    return programLog;
+  });
 }

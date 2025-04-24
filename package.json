@@ -11,6 +11,7 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.13.4",
     "@mux/mux-player-react": "^3.3.4",
     "@prisma/client": "6.6.0",
     "@radix-ui/react-accordion": "^1.2.8",

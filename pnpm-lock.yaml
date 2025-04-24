@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@lottiefiles/dotlottie-react':
+        specifier: ^0.13.4
+        version: 0.13.4(react@19.1.0)
       '@mux/mux-player-react':
         specifier: ^3.3.4
         version: 3.3.4(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -829,6 +832,14 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
+
+  '@lottiefiles/dotlottie-react@0.13.4':
+    resolution: {integrity: sha512-QW3hSF1k95B56nswzs5iLY7FFGbwv/DkNDK3Kv1PyaoInAmj0+BE0496YTkWqRaYM2p0jKskjrZrLsHJVvfatg==}
+    peerDependencies:
+      react: ^17 || ^18 || ^19
+
+  '@lottiefiles/dotlottie-web@0.43.0':
+    resolution: {integrity: sha512-mIfb2aZj1xFY/NTtZ4tQPiOVz8MfWDkdUOCVpzCv3q8C8WRKxZUwPgIG8BdqhkujPksS9eYDXH/4f9qxyfNCwg==}
 
   '@mux/mux-player-react@3.3.4':
     resolution: {integrity: sha512-ntoUCfZWdJq3pZMwH8NYTd5PmtgwDVx1TeAnhfhmYssZ20BAwY/MJsLy/G6I16i3WU1pOLFlMHSScqKuSIM7jg==}
@@ -5331,6 +5342,13 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@lottiefiles/dotlottie-react@0.13.4(react@19.1.0)':
+    dependencies:
+      '@lottiefiles/dotlottie-web': 0.43.0
+      react: 19.1.0
+
+  '@lottiefiles/dotlottie-web@0.43.0': {}
 
   '@mux/mux-player-react@3.3.4(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:

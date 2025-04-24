@@ -6,6 +6,8 @@ import Link from "next/link";
 import clsx from "clsx";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PlayIcon } from "@/assets/icons";
+import { cookies } from "next/headers";
+import { WorkoutCompletedDialog } from "@/components/WorkoutCompletedDialog";
 
 export default async function ProgramIdPage({
   params
@@ -16,7 +18,8 @@ export default async function ProgramIdPage({
   const program = await getProgramById(id);
   const { userId } = await verifySession();
   const userProgramLogs = await getUserProgramLogsByProgramId(userId as string, id);
-
+  const cookieStore = await cookies()
+  const newProgramLog = JSON.parse(cookieStore.get('fitizen__new_program_log')?.value || '{}')
   // TODO: Add View Log links
 
   if (!program) {
@@ -29,6 +32,7 @@ export default async function ProgramIdPage({
 
   return (
     <div className="@container">
+      {newProgramLog?.programLogId && <WorkoutCompletedDialog workoutName={newProgramLog.workoutName} />}
       <ScrollArea className="h-[calc(100vh-4rem)]">
         {/* TOP SECTION */}
         <div className="flex flex-col lg:flex-row gap-4 mb-4">

@@ -3,7 +3,7 @@ import 'server-only'
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 import { SessionPayload, SetupProfilePayload } from './definitions'
-import { AUTH_SESSION_MAX_AGE, MAGIC_LINK_MAX_AGE } from '@/lib/magicNumbers'
+import { AUTH_SESSION_MAX_AGE, MAGIC_LINK_MAX_AGE, NEW_PROGRAM_LOG_MAX_AGE } from '@/lib/magicNumbers'
  
 const secretKey = process.env.AUTH_COOKIE_SECRET
 const encodedKey = new TextEncoder().encode(secretKey)
@@ -107,4 +107,18 @@ export async function createSetupProfile({ email, provider, provider_user_id }: 
 export async function deleteSetupProfile() {
   const cookieStore = await cookies()
   cookieStore.delete('fitizen__setup_profile')
+}
+
+export async function newProgramLog({ programLogId, workoutName }: {programLogId: string, workoutName: string}) {
+  const cookieStore = await cookies()
+  const currentDate = new Date()
+  const expiresAt = new Date(currentDate.getTime() + NEW_PROGRAM_LOG_MAX_AGE)
+
+  cookieStore.set('fitizen__new_program_log', JSON.stringify({ programLogId, workoutName }), {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+    expires: expiresAt,
+  })
 }
