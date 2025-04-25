@@ -78,7 +78,6 @@ function SubmitButton() {
 
 export default function ProgramLogForm({ programId, programWeek, programDay, blocks, movementPrep, warmup, cooldown, programWorkout }: ProgramLogFormProps) {
   const [state, dispatch] = useActionState(createProgramLog, null);
-  console.log("form state", state);
   return (
     <Form action={dispatch}>
       <div className="pt-4">

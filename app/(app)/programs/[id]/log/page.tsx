@@ -8,7 +8,7 @@ import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ProgramLogForm from "./ProgramLogForm";
 
-export default async function ProgramsLogPage({
+export default async function ProgramLogPage({
   params
 }: {
   params: Promise<{ id: string }>

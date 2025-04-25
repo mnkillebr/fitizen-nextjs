@@ -128,7 +128,7 @@ export default async function ProgramIdPage({
                         <div className="font-semibold text-muted-foreground">Day {day.dayNumber}</div>
                         {logExists ? (
                           <Link
-                            href={`/app/programs/logview?id=${logExists?.id}`}
+                            href={`/programs/${program.id}/logview?id=${logExists?.id}`}
                             className={clsx(
                               "text-sm h-5 underline text-primary hover:text-yellow-500",
                               // isNavigatingLogView && navigation.location.search === `?id=${logExists?.id}` ? "animate-pulse" : ""
@@ -176,7 +176,7 @@ export default async function ProgramIdPage({
                           <div className="font-semibold text-muted-foreground">Day {day.dayNumber}</div>
                           {logExists ? (
                             <Link
-                              href={`/programs/logview?id=${logExists?.id}`}
+                              href={`/programs/${program.id}/logview?id=${logExists?.id}`}
                               className={clsx(
                                 "text-sm h-5 underline text-primary hover:text-yellow-500",
                               )}

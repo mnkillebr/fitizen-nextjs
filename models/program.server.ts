@@ -157,6 +157,50 @@ interface NestedCooldown {
   }>;
 }
 
+interface ProgramLogWithDetails {
+  id: string;
+  userId: string;
+  programId: string;
+  programWeek: number;
+  programDay: number;
+  date: Date;
+  duration: string;
+  programName: string | null;
+  exerciseLogs: Array<{
+    id: string;
+    programBlockId: string;
+    exerciseId: string;
+    sets: Array<{
+      id: string;
+      set: string;
+      actualReps: string | null;
+      load: number | null;
+      notes: string | null;
+      unit: "bodyweight" | "kilogram" | "pound";
+    }>;
+    blockExercise: {
+      orderInBlock: number;
+      sets: number | null;
+      target: "reps" | "time";
+      reps: number | null;
+      time: number | null;
+      notes: string | null;
+      rest: number | null;
+      side: "left" | "right" | "none" | null;
+      block: {
+        blockNumber: number;
+      };
+      exercise: {
+        id: string;
+        name: string;
+        muxPlaybackId: string | null;
+        cues: string[];
+        tags: string[];
+      };
+    };
+  }>;
+}
+
 export async function getProgramById(id: string): Promise<NestedProgram | null> {
   const program = await db.select().from(Program)
     .where(eq(Program.id, id))
@@ -517,4 +561,122 @@ export async function saveUserProgramLog(
 
     return programLog;
   });
+}
+
+export async function getUserProgramLog(userId: string, programLogId: string): Promise<ProgramLogWithDetails | null> {
+  const result = await db.select()
+    .from(ProgramLog)
+    .leftJoin(Program, eq(ProgramLog.programId, Program.id))
+    .leftJoin(ProgramExerciseLog, eq(ProgramLog.id, ProgramExerciseLog.programLogId))
+    .leftJoin(ProgramExerciseLogSet, eq(ProgramExerciseLog.id, ProgramExerciseLogSet.programExerciseLogId))
+    .leftJoin(BlockExercise, and(
+      eq(ProgramExerciseLog.programBlockId, BlockExercise.programBlockId),
+      eq(ProgramExerciseLog.exerciseId, BlockExercise.exerciseId)
+    ))
+    .leftJoin(ProgramBlock, eq(BlockExercise.programBlockId, ProgramBlock.id))
+    .leftJoin(Exercise, eq(BlockExercise.exerciseId, Exercise.id))
+    .where(and(eq(ProgramLog.id, programLogId), eq(ProgramLog.userId, userId)));
+
+  if (!result.length) {
+    return null;
+  }
+
+  // Transform the flat result into a nested structure
+  const programLog = result[0].ProgramLog;
+  const programName = result[0].Program?.name || null;
+
+  // Group exercise logs by their ID
+  const exerciseLogsMap = new Map<string, ProgramLogWithDetails['exerciseLogs'][0]>();
+  result.forEach(row => {
+    if (!row.ProgramExerciseLog?.id) return;
+
+    const exerciseLog = row.ProgramExerciseLog;
+    const exerciseLogSet = row.ProgramExerciseLogSet;
+    const blockExercise = row.BlockExercise;
+    const programBlock = row.ProgramBlock;
+    const exercise = row.Exercise;
+
+    if (!exerciseLogsMap.has(exerciseLog.id)) {
+      exerciseLogsMap.set(exerciseLog.id, {
+        id: exerciseLog.id,
+        programBlockId: exerciseLog.programBlockId,
+        exerciseId: exerciseLog.exerciseId,
+        sets: [],
+        blockExercise: blockExercise ? {
+          orderInBlock: blockExercise.orderInBlock,
+          sets: blockExercise.sets,
+          target: blockExercise.target,
+          reps: blockExercise.reps,
+          time: blockExercise.time,
+          notes: blockExercise.notes,
+          rest: blockExercise.rest,
+          side: blockExercise.side,
+          block: programBlock ? {
+            blockNumber: programBlock.blockNumber,
+          } : {
+            blockNumber: 0,
+          },
+          exercise: exercise ? {
+            id: exercise.id,
+            name: exercise.name,
+            muxPlaybackId: exercise.muxPlaybackId,
+            cues: exercise.cues,
+            tags: exercise.tags
+          } : {
+            id: "",
+            name: "",
+            muxPlaybackId: null,
+            cues: [],
+            tags: []
+          }
+        } : {
+          orderInBlock: 0,
+          sets: null,
+          target: "reps",
+          reps: null,
+          time: null,
+          notes: null,
+          rest: null,
+          side: null,
+          block: {
+            blockNumber: 0,
+          },
+          exercise: {
+            id: "",
+            name: "",
+            muxPlaybackId: null,
+            cues: [],
+            tags: []
+          }
+        }
+      });
+    }
+
+    // Add set if it exists
+    if (exerciseLogSet?.id) {
+      const existingLog = exerciseLogsMap.get(exerciseLog.id);
+      if (existingLog && !existingLog.sets.some(s => s.id === exerciseLogSet.id)) {
+        existingLog.sets.push({
+          id: exerciseLogSet.id,
+          set: exerciseLogSet.set,
+          actualReps: exerciseLogSet.actualReps,
+          load: exerciseLogSet.load,
+          notes: exerciseLogSet.notes,
+          unit: exerciseLogSet.unit
+        });
+      }
+    }
+  });
+
+  return {
+    id: programLog.id,
+    userId: programLog.userId,
+    programId: programLog.programId,
+    programWeek: programLog.programWeek,
+    programDay: programLog.programDay,
+    date: programLog.date,
+    duration: programLog.duration,
+    programName,
+    exerciseLogs: Array.from(exerciseLogsMap.values())
+  };
 }
