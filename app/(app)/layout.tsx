@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/AppSidebar/app-sidebar";
 import { getCurrentUser } from "../lib/dal";
 import { redirect } from "next/navigation";
 import { HeaderBreadcrumbs } from "@/components/HeaderBreadcrumbs/header-breadcrumbs";
+import { BreadcrumbsProvider } from "@/components/breadcrumbs-provider";
 
 export default async function DashboardLayout({
   children,
@@ -16,7 +17,7 @@ export default async function DashboardLayout({
     redirect("/login");
   }
   return (
-    <>
+    <BreadcrumbsProvider>
       <SidebarProvider>
         <AppSidebar user={user} />
         <SidebarInset className="max-w-8xl mx-auto">
@@ -35,6 +36,6 @@ export default async function DashboardLayout({
           </main>
         </SidebarInset>
       </SidebarProvider>
-    </>
+    </BreadcrumbsProvider>
   );
 }

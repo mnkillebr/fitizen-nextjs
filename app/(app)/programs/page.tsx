@@ -1,7 +1,7 @@
 import { getAllPrograms } from "@/models/program.server";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ImageCard } from "@/components/ImageCard";
-import Link from "next/link";
+import { ProgramCardLink } from "./ProgramCardLink";
 
 export default async function ProgramsPage({
   searchParams,
@@ -25,14 +25,7 @@ export default async function ProgramsPage({
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 snap-y snap-mandatory">
           {programs.map((program) => (
             <div key={program.id} className="snap-start">
-              <Link href={`/programs/${program.id}`}>
-                <ImageCard
-                  title={program.name}
-                  // description={program.description ?? ""}
-                  description="Difficulty Level: Beginner"
-                  imageUrl={program.s3ImageKey ?? ""}
-                />
-              </Link>
+              <ProgramCardLink program={program} />
             </div>
           ))}
           <ImageCard

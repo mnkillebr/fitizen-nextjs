@@ -33,7 +33,6 @@ export default async function ProgramIdPage({
   return (
     <div className="@container">
       {newProgramLog?.programLogId && <WorkoutCompletedDialog workoutName={newProgramLog.workoutName} />}
-      <ScrollArea className="h-[calc(100vh-4rem)]">
         {/* TOP SECTION */}
         <div className="flex flex-col lg:flex-row gap-4 mb-4">
           {/* Mobile/Tablet View */}
@@ -108,70 +107,23 @@ export default async function ProgramIdPage({
         </div>
 
         {/* BOTTOM SECTION */}
-        <div className="flex flex-col gap-4 mb-4">
-          {program.weeks.map((week, week_idx) => (
-            <div key={`week-${week_idx}`} className="lg:hidden">
-              <div className="font-semibold">Week {week.weekNumber}</div>
-              <Tabs className="w-full h-full px-0.5" defaultValue="day_1">
-                <TabsList>
-                  {week.days.map((day, day_idx) => (<TabsTrigger key={`day-${day_idx}`} value={`day_${day.dayNumber}`}>Day {day.dayNumber}</TabsTrigger>))}
-                </TabsList>
-                {week.days.map((day, day_idx) => {
-                  const logExists = userProgramLogs.find(log => log.programDay === day.dayNumber && log.programWeek === week.weekNumber)
-                  return (
-                    <TabsContent
-                      key={`day-${day_idx}`}
-                      value={`day_${day.dayNumber}`}
-                      className="p-2 shadow h-[calc(100%-4.25rem)] rounded-md dark:border dark:border-border-muted dark:shadow-border-muted overflow-hidden"
-                    >
-                      <div className="flex items-end justify-between mb-2">
-                        <div className="font-semibold text-muted-foreground">Day {day.dayNumber}</div>
-                        {logExists ? (
-                          <Link
-                            href={`/programs/${program.id}/logview?id=${logExists?.id}`}
-                            className={clsx(
-                              "text-sm h-5 underline text-primary hover:text-yellow-500",
-                              // isNavigatingLogView && navigation.location.search === `?id=${logExists?.id}` ? "animate-pulse" : ""
-                            )}
-                          >
-                            View Log
-                          </Link>
-                        ) : null}
-                      </div>
-                      <div className="flex flex-col p-1 gap-1 *:bg-slate-100 *:rounded *:px-2 *:py-1 *:dark:bg-background-muted">
-                        {day.blocks.map((block, block_idx) => (
-                          <div key={`block-${block_idx}`} className="">
-                            {block.exercises.map((exercise, exercise_idx) => (
-                              <div key={`exercise-${exercise_idx}`} className="flex">
-                                <div className="w-2/3 truncate">{exercise.exercise.name}</div>
-                                <div className="w-1/3">{exercise.sets} x {exercise.time ? `${exercise.time} sec` : exercise.reps}</div>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    </TabsContent>
-                  )
-                })}
-              </Tabs>
-            </div>
-          ))}
-
-          {/* Desktop View */}
-          <div className="hidden lg:grid grid-cols-1 gap-8">
-            {program.weeks.map((week) => (
-              <div key={week.id} className="bg-background rounded-lg shadow">
-                <div className="font-semibold mb-2">Week {week.weekNumber}</div>
-                <div
-                  className={clsx(
-                    "hidden lg:flex h-[calc(100%-1.5rem)] *:shadow *:rounded-md gap-x-2 px-0.5",
-                    "*:w-1/3 *:dark:border *:dark:border-border-muted *:dark:shadow-border-muted",
-                  )}
-                >
+        <ScrollArea className="h-[calc(100vh-27rem)] md:h-[calc(100vh-26rem)] lg:h-[calc(100vh-29rem)]">
+          <div className="flex flex-col gap-4 mb-4">
+            {program.weeks.map((week, week_idx) => (
+              <div key={`week-${week_idx}`} className="lg:hidden">
+                <div className="font-semibold">Week {week.weekNumber}</div>
+                <Tabs className="w-full h-full px-0.5" defaultValue="day_1">
+                  <TabsList>
+                    {week.days.map((day, day_idx) => (<TabsTrigger key={`day-${day_idx}`} value={`day_${day.dayNumber}`}>Day {day.dayNumber}</TabsTrigger>))}
+                  </TabsList>
                   {week.days.map((day, day_idx) => {
                     const logExists = userProgramLogs.find(log => log.programDay === day.dayNumber && log.programWeek === week.weekNumber)
                     return (
-                      <div key={`day-${day_idx}`} className="p-2 overflow-hidden overflow-y-auto">
+                      <TabsContent
+                        key={`day-${day_idx}`}
+                        value={`day_${day.dayNumber}`}
+                        className="p-2 shadow h-[calc(100%-4.25rem)] rounded-md dark:border dark:border-border-muted dark:shadow-border-muted overflow-hidden"
+                      >
                         <div className="flex items-end justify-between mb-2">
                           <div className="font-semibold text-muted-foreground">Day {day.dayNumber}</div>
                           {logExists ? (
@@ -179,6 +131,7 @@ export default async function ProgramIdPage({
                               href={`/programs/${program.id}/logview?id=${logExists?.id}`}
                               className={clsx(
                                 "text-sm h-5 underline text-primary hover:text-yellow-500",
+                                // isNavigatingLogView && navigation.location.search === `?id=${logExists?.id}` ? "animate-pulse" : ""
                               )}
                             >
                               View Log
@@ -197,15 +150,62 @@ export default async function ProgramIdPage({
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </TabsContent>
                     )
                   })}
-                </div>
+                </Tabs>
               </div>
             ))}
+
+            {/* Desktop View */}
+            <div className="hidden lg:grid grid-cols-1 gap-8">
+              {program.weeks.map((week) => (
+                <div key={week.id} className="bg-background rounded-lg shadow">
+                  <div className="font-semibold mb-2">Week {week.weekNumber}</div>
+                  <div
+                    className={clsx(
+                      "hidden lg:flex h-[calc(100%-1.5rem)] *:shadow *:rounded-md gap-x-2 px-0.5",
+                      "*:w-1/3 *:dark:border *:dark:border-border-muted *:dark:shadow-border-muted",
+                    )}
+                  >
+                    {week.days.map((day, day_idx) => {
+                      const logExists = userProgramLogs.find(log => log.programDay === day.dayNumber && log.programWeek === week.weekNumber)
+                      return (
+                        <div key={`day-${day_idx}`} className="p-2 overflow-hidden overflow-y-auto">
+                          <div className="flex items-end justify-between mb-2">
+                            <div className="font-semibold text-muted-foreground">Day {day.dayNumber}</div>
+                            {logExists ? (
+                              <Link
+                                href={`/programs/${program.id}/logview?id=${logExists?.id}`}
+                                className={clsx(
+                                  "text-sm h-5 underline text-primary hover:text-yellow-500",
+                                )}
+                              >
+                                View Log
+                              </Link>
+                            ) : null}
+                          </div>
+                          <div className="flex flex-col p-1 gap-1 *:bg-slate-100 *:rounded *:px-2 *:py-1 *:dark:bg-background-muted">
+                            {day.blocks.map((block, block_idx) => (
+                              <div key={`block-${block_idx}`} className="">
+                                {block.exercises.map((exercise, exercise_idx) => (
+                                  <div key={`exercise-${exercise_idx}`} className="flex">
+                                    <div className="w-2/3 truncate">{exercise.exercise.name}</div>
+                                    <div className="w-1/3">{exercise.sets} x {exercise.time ? `${exercise.time} sec` : exercise.reps}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </ScrollArea>
+        </ScrollArea>
     </div>
   );
 }
