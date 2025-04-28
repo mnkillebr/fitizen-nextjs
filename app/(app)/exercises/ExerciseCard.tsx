@@ -25,13 +25,10 @@ type ExerciseProps = {
   selectable?: boolean;
   selectFn?: (...args: any[]) => void;
   selected?: boolean;
-  role?: "admin" | "user";
-  onViewExercise?: (exerciseItem: ExerciseItemProps) => void;
   selectCount?: number;
 }
 
-export function ExerciseCard({ exercise, selectable, selectFn, selected, role, selectCount, onViewExercise = () => {}}: ExerciseProps) {
-  console.log(exercise);
+export function ExerciseCard({ exercise, selectable, selectFn, selected, selectCount}: ExerciseProps) {
   return (
     <Card className="relative h-[calc(29.8vh)] overflow-hidden">
       <div className="absolute inset-0 z-0 group">
