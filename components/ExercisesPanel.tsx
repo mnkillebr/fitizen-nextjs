@@ -1,4 +1,5 @@
 import { Video } from "lucide-react"
+import { ExerciseDialog } from "./ExerciseDialog";
 
 interface ExerciseDetailProps {
   routineId?: string;
@@ -28,18 +29,15 @@ export function ExercisesPanel({ exerciseDetailsArray }: ExercisesPanelProps) {
                     key={`${exercise.routineId}-${ex_item.id}-${idx}`}
                     className="flex shadow-md rounded-md *:content-center bg-white dark:bg-background dark:shadow-sm dark:shadow-border-muted snap-start"
                   >
-                    <div
-                      className="relative group cursor-pointer shrink-0"
-                      // onClick={() => openDialog(
-                      //   <ExerciseDialog exercise={ex_item} />,
-                      //   exerciseDialogOptions(ex_item.name)
-                      // )}
-                    >
+                    <div className="relative group cursor-pointer shrink-0">
                       <img
                         src={ex_item.thumbnail ?? "https://res.cloudinary.com/dqrk3drua/image/upload/f_auto,q_auto/cld-sample-3.jpg"}
                         className="h-16 rounded-sm transition-opacity duration-300 group-hover:opacity-85"
                       />
-                      <Video className="absolute w-full size-4 inset-y-1/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      {/* <Video className="absolute w-full size-4 inset-y-1/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300" /> */}
+                      <div className="absolute w-full size-4 inset-y-1/3 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <ExerciseDialog exercise={ex_item} />
+                      </div>
                     </div>
                     <div className="flex flex-col overflow-x-hidden">
                       <div className="px-3 text-sm/6 font-medium max-w-[100%-6rem] truncate">{ex_item.name}</div>
@@ -83,18 +81,15 @@ export function ExercisesPanel({ exerciseDetailsArray }: ExercisesPanelProps) {
                 className="flex shadow-md rounded-md *:content-center bg-white dark:bg-background dark:shadow-sm dark:shadow-border-muted snap-start"
               >
                 {/* <div className="bg-slate-400 rounded-md text-white size-16 min-w-16 text-center">Image</div> */}
-                <div
-                  className="relative group cursor-pointer shrink-0"
-                  // onClick={() => openDialog(
-                  //   <ExerciseDialog exercise={exercise} />,
-                  //   exerciseDialogOptions(exercise.name)
-                  // )}
-                >
+                <div className="relative group cursor-pointer shrink-0">
                   <img
                     src={exercise.thumbnail ?? "https://res.cloudinary.com/dqrk3drua/image/upload/f_auto,q_auto/cld-sample-3.jpg"}
                     className="h-16 rounded-sm transition-opacity duration-300 group-hover:opacity-85"
                   />
-                  <Video className="absolute w-full size-4 inset-y-1/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* <Video className="absolute w-full size-4 inset-y-1/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300" /> */}
+                  <div className="absolute w-full size-4 inset-y-1/3 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <ExerciseDialog exercise={exercise} />
+                  </div>
                 </div>
                 <div className="flex flex-col overflow-x-hidden">
                   <div className="px-3 text-sm/6 font-medium max-w-full truncate">{exercise.name}</div>

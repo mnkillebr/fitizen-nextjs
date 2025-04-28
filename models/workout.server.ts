@@ -135,3 +135,115 @@ export async function saveUserWorkoutLog(userId: string, routineId: string, dura
     return workoutLog;
   });
 }
+
+interface WorkoutLogWithDetails {
+  id: string;
+  userId: string;
+  routineId: string;
+  date: Date;
+  duration: string;
+  routineName: string | null;
+  exerciseLogs: Array<{
+    id: string;
+    exerciseId: string;
+    circuitId: string | null;
+    orderInRoutine: number;
+    target: "reps" | "time";
+    time: string | null;
+    targetReps: string | null;
+    sets: Array<{
+      id: string;
+      set: string;
+      actualReps: string | null;
+      load: number | null;
+      notes: string | null;
+      unit: "bodyweight" | "kilogram" | "pound";
+    }>;
+    exercise: {
+      id: string;
+      name: string;
+      muxPlaybackId: string | null;
+      cues: string[];
+      tags: string[];
+    };
+  }>;
+}
+
+export async function getUserWorkoutLog(userId: string, workoutLogId: string): Promise<WorkoutLogWithDetails | null> {
+  const result = await db.select()
+    .from(WorkoutLog)
+    .leftJoin(Routine, eq(WorkoutLog.routineId, Routine.id))
+    .leftJoin(ExerciseLog, eq(WorkoutLog.id, ExerciseLog.workoutLogId))
+    .leftJoin(ExerciseLogSet, eq(ExerciseLog.id, ExerciseLogSet.exerciseLogId))
+    .leftJoin(Exercise, eq(ExerciseLog.exerciseId, Exercise.id))
+    .where(and(eq(WorkoutLog.id, workoutLogId), eq(WorkoutLog.userId, userId)));
+
+  if (!result.length) {
+    return null;
+  }
+
+  // Transform the flat result into a nested structure
+  const workoutLog = result[0].WorkoutLog;
+  const routineName = result[0].Routine?.name || null;
+
+  // Group exercise logs by their ID
+  const exerciseLogsMap = new Map<string, WorkoutLogWithDetails['exerciseLogs'][0]>();
+  result.forEach(row => {
+    if (!row.ExerciseLog?.id) return;
+
+    const exerciseLog = row.ExerciseLog;
+    const exerciseLogSet = row.ExerciseLogSet;
+    const exercise = row.Exercise;
+
+    if (!exerciseLogsMap.has(exerciseLog.id)) {
+      exerciseLogsMap.set(exerciseLog.id, {
+        id: exerciseLog.id,
+        exerciseId: exerciseLog.exerciseId,
+        circuitId: exerciseLog.circuitId,
+        orderInRoutine: exerciseLog.orderInRoutine,
+        target: exerciseLog.target,
+        time: exerciseLog.time,
+        targetReps: exerciseLog.targetReps,
+        sets: [],
+        exercise: exercise ? {
+          id: exercise.id,
+          name: exercise.name,
+          muxPlaybackId: exercise.muxPlaybackId,
+          cues: exercise.cues,
+          tags: exercise.tags
+        } : {
+          id: "",
+          name: "",
+          muxPlaybackId: null,
+          cues: [],
+          tags: []
+        }
+      });
+    }
+
+    // Add set if it exists
+    if (exerciseLogSet?.id) {
+      const existingLog = exerciseLogsMap.get(exerciseLog.id);
+      if (existingLog && !existingLog.sets.some(s => s.id === exerciseLogSet.id)) {
+        existingLog.sets.push({
+          id: exerciseLogSet.id,
+          set: exerciseLogSet.set,
+          actualReps: exerciseLogSet.actualReps,
+          load: exerciseLogSet.load,
+          notes: exerciseLogSet.notes,
+          unit: exerciseLogSet.unit
+        });
+      }
+    }
+  });
+
+  return {
+    id: workoutLog.id,
+    userId: workoutLog.userId,
+    routineId: workoutLog.routineId,
+    date: workoutLog.date,
+    duration: workoutLog.duration,
+    routineName,
+    exerciseLogs: Array.from(exerciseLogsMap.values())
+  };
+}

@@ -25,11 +25,12 @@ export function ImageCard({ title, description, imageUrl, comingSoon = false, ty
       </div>
       <div className="relative z-10 h-full flex flex-col">
         <CardHeader>
-          <CardTitle className="text-white text-shadow">{title}</CardTitle>
-          <CardDescription className="text-white/80 text-shadow">{description}</CardDescription>
+          <CardTitle className="text-white text-shadow-lg">{title}</CardTitle>
+          <CardDescription className="text-white/80 text-shadow-lg">{description}</CardDescription>
         </CardHeader>
         {/* <CardContent className="flex-1">
-          <p className="text-foreground/80">{description}</p>
+          <p className="text-white text-shadow font-semibold">{title}</p>
+          <p className="text-white/80 text-shadow text-sm">{description}</p>
         </CardContent> */}
       </div>
       {type === "program" ? (

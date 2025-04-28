@@ -49,7 +49,6 @@ export default async function WorkoutLogPage({
   }) ?? []
   const exerciseDetails = exerciseDetailsMap(workout.exercises, tokenMappedExercises)
   
-  console.log(exerciseDetails)
   return (
     <div className="@container">
       <div className="flex justify-between items-center">

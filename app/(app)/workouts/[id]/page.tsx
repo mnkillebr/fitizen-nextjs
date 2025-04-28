@@ -17,12 +17,12 @@ import {
 import Link from "next/link";
 import clsx from "clsx";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CalendarIcon, ChevronLeft, ContextMenuIcon, PencilIcon, PlayIcon, TrashIcon } from "@/assets/icons";
+import { CalendarIcon, ChevronLeft, ContextMenuIcon, PencilIcon, PlayIcon, TrashIcon, FireIcon, BarsIcon, ClockIcon } from "@/assets/icons";
 import { cookies } from "next/headers";
 import { WorkoutCompletedDialog } from "@/components/WorkoutCompletedDialog";
 import { getWorkoutById, getWorkoutLogsById } from "@/models/workout.server";
 import { ExercisesPanel } from "@/components/ExercisesPanel";
-import { Exercise, RoutineExercise } from "@/db/schema";
+import { RoutineExercise } from "@/db/schema";
 import { generateMuxThumbnailToken, generateMuxVideoToken } from "@/app/lib/mux-tokens.server";
 import { verifySession } from "@/app/lib/dal";
 
@@ -95,12 +95,12 @@ export default async function WorkoutIdPage({
   const cookieStore = await cookies()
   const newWorkoutLog = JSON.parse(cookieStore.get('fitizen__new_workout_log')?.value || '{}')
 
+
   const formatDuration = (duration: number) => {
     const hours = Math.floor(duration / 3600000);
     const minutes = Math.floor((duration % 3600000) / 60000);
     return hours > 0 ? `${hours} hr ${minutes} min` : `${minutes} min`
   }
-  // console.log(workout)
 
   if (!workout) {
     return <div>Workout not found</div>;
@@ -136,9 +136,10 @@ export default async function WorkoutIdPage({
     }
   }) ?? []
   const exerciseDetails = exerciseDetailsMap(workout.exercises, tokenMappedExercises)
-  // console.log(exerciseDetails)
+
   return (
     <div className="@container">
+      {newWorkoutLog?.workoutLogId && <WorkoutCompletedDialog workoutName={workout.name} />}
       <div className="flex justify-between mb-2">
         <Link
           href="/workouts"
@@ -193,8 +194,29 @@ export default async function WorkoutIdPage({
             style={{ objectPosition: 'top center' }}
           />
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-all duration-300">
-            <h1 className="text-2xl font-bold text-white group-hover:hidden">{workout.name}</h1>
+            <h1 className="text-3xl font-bold text-white text-shadow-lg group-hover:hidden">{workout.name}</h1>
             <p className="text-white p-4 hidden group-hover:block">{workout.description}</p>
+          </div>
+          <div className={clsx(
+            "flex justify-around mb-6 *:font-semibold *:flex *:flex-col *:leading-5",
+            "text-lg text-white *:drop-shadow-[0_2.2px_2.2px_rgba(0,0,0,0.8)] *:items-center",
+            "absolute bottom-0 left-0 right-0 group-hover:hidden"
+          )}>
+            <div>
+              <ClockIcon />
+              <div>40</div>
+              <div>min</div>
+            </div>
+            <div>
+              <FireIcon />
+              <div>200</div>
+              <div>kcal</div>
+            </div>
+            <div>
+              <BarsIcon />
+              <div>6</div>
+              <div>level</div>
+            </div>
           </div>
         </div>
         <Link
@@ -220,7 +242,28 @@ export default async function WorkoutIdPage({
               style={{ objectPosition: 'top center' }}
             />
             <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-              <h1 className="text-3xl font-bold text-white">{workout.name}</h1>
+              <h1 className="text-3xl font-bold text-white text-shadow-lg">{workout.name}</h1>
+            </div>
+            <div className={clsx(
+              "flex justify-around mb-6 *:font-semibold *:flex *:flex-col *:leading-5",
+              "text-lg text-white *:drop-shadow-[0_2.2px_2.2px_rgba(0,0,0,0.8)] *:items-center",
+              "absolute bottom-0 left-0 right-0"
+            )}>
+              <div>
+                <ClockIcon />
+                <div>40</div>
+                <div>min</div>
+              </div>
+              <div>
+                <FireIcon />
+                <div>200</div>
+                <div>kcal</div>
+              </div>
+              <div>
+                <BarsIcon />
+                <div>6</div>
+                <div>level</div>
+              </div>
             </div>
           </div>
           <div className="flex-1 flex flex-col gap-4">
@@ -285,7 +328,7 @@ export default async function WorkoutIdPage({
                           <p className="text-sm h-5">{new Date(log.date).toLocaleDateString()}</p>
                           <p className="text-sm h-5">{formatDuration(parseInt(log.duration))}</p>
                           <Link
-                            href={`/workouts/logview?id=${log.id}`}
+                            href={`/workouts/${workout.id}/logview?id=${log.id}`}
                             className="text-sm h-5 underline text-primary hover:text-yellow-500"
                           >
                             View Log
@@ -332,7 +375,7 @@ export default async function WorkoutIdPage({
                         <p className="text-sm h-5">{new Date(log.date).toLocaleDateString()}</p>
                         <p className="text-sm h-5">{formatDuration(parseInt(log.duration))}</p>
                         <Link
-                          href={`/app/workouts/logview?id=${log.id}`}
+                          href={`/workouts/${workout.id}/logview?id=${log.id}`}
                           className="text-sm h-5 underline text-primary hover:text-yellow-500"
                         >
                           View Log
