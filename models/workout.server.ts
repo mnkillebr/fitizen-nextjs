@@ -7,13 +7,13 @@ import {
   ExerciseLog,
   ExerciseLogSet
 } from "@/db/schema";
-import { eq, desc, ilike, and } from "drizzle-orm";
+import { eq, desc, ilike, and, asc } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 export function getAllWorkouts(query: string) {
   return db.select().from(Routine)
     .where(ilike(Routine.name, `%${query}%`))
-    .orderBy(desc(Routine.createdAt), desc(Routine.name));
+    .orderBy(desc(Routine.createdAt), asc(Routine.name));
 };
 
 export async function getWorkoutById(id: string) {

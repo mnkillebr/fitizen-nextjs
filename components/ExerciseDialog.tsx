@@ -11,13 +11,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Video } from "lucide-react"
 
-export function ExerciseDialog ({ exercise }: ExerciseDialogProps) {
+interface ExerciseDialogWithChildrenProps extends ExerciseDialogProps {
+  children?: React.ReactNode;
+}
+
+export function ExerciseDialog ({ children, exercise }: ExerciseDialogWithChildrenProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Video
-          className="hover:cursor-pointer min-w-6"
-        />
+        {children ? children : <Video className="hover:cursor-pointer min-w-6" />}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[408px] md:max-w-[550px] lg:max-w-[784px] ">
         <DialogHeader>
