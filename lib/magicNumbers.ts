@@ -1,5 +1,5 @@
 export const MAGIC_LINK_MAX_AGE = 1000 * 60 * 10; // 10 minutes
-export const NEW_PROGRAM_LOG_MAX_AGE = 1000 * 10; // 10 seconds
+export const NEW_LOG_MAX_AGE = 1000 * 10; // 10 seconds
 // export const AUTH_SESSION_MAX_AGE = 1000 * 60 * 60; // 1 hour
 export const AUTH_SESSION_MAX_AGE = 1000 * 60 * 60 * 24; // 24 hours
 export const GOAL_SETTING_DURATION = 899; // 14 minutes 59 seconds in total seconds

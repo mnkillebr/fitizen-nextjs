@@ -3,9 +3,12 @@ import {
   Routine,
   RoutineExercise,
   Exercise,
-  WorkoutLog
+  WorkoutLog,
+  ExerciseLog,
+  ExerciseLogSet
 } from "@/db/schema";
 import { eq, desc, ilike, and } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
 export function getAllWorkouts(query: string) {
   return db.select().from(Routine)
@@ -65,4 +68,70 @@ export async function getWorkoutById(id: string) {
 export async function getWorkoutLogsById(userId: string, routineId: string) {
   return db.select().from(WorkoutLog)
     .where(and(eq(WorkoutLog.userId, userId), eq(WorkoutLog.routineId, routineId)));
+}
+
+export interface ExerciseLogSet {
+  set: string;
+  actualReps?: string;
+  load?: number;
+  unit: "bodyweight" | "kilogram" | "pound";
+  notes?: string;
+}
+export interface ExerciseLogType {
+  exerciseId: string;
+  circuitId?: string;
+  target: "reps" | "time";
+  time?: string;
+  targetReps?: string;
+  sets: ExerciseLogSet[];
+  orderInRoutine: number;
+}
+
+export async function saveUserWorkoutLog(userId: string, routineId: string, duration: string, exerciseLogs: Array<ExerciseLogType>) {
+  // Start a transaction
+  return await db.transaction(async (tx) => {
+    // Create the workout log
+    const [workoutLog] = await tx
+      .insert(WorkoutLog)
+      .values({
+        id: nanoid(),
+        userId,
+        routineId,
+        date: new Date(),
+        duration,
+      })
+      .returning();
+
+    // Create exercise logs and their sets
+    for (const exerciseLog of exerciseLogs) {
+      const [exerciseLogRecord] = await tx
+        .insert(ExerciseLog)
+        .values({
+          id: nanoid(),
+          workoutLogId: workoutLog.id,
+          exerciseId: exerciseLog.exerciseId,
+          circuitId: exerciseLog.circuitId,
+          orderInRoutine: exerciseLog.orderInRoutine,
+          target: exerciseLog.target,
+          time: exerciseLog.time,
+          targetReps: exerciseLog.targetReps,
+        })
+        .returning();
+
+      // Create sets for each exercise log
+      for (const set of exerciseLog.sets) {
+        await tx.insert(ExerciseLogSet).values({
+          id: nanoid(),
+          exerciseLogId: exerciseLogRecord.id,
+          set: set.set,
+          actualReps: set.actualReps,
+          load: set.load,
+          notes: set.notes,
+          unit: set.unit,
+        });
+      }
+    }
+
+    return workoutLog;
+  });
 }

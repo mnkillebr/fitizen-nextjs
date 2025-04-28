@@ -58,3 +58,25 @@ export const programLogSchema = z.object({
     })),
   })).min(1, "You must log at least one exercise"),
 });
+
+export const workoutLogSchema = z.object({
+  workoutId: z.string(),
+  duration: z.string(),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Invalid ISO date string",
+  }),
+  exercises: z.array(z.object({
+    exerciseId: z.string(),
+    circuitId: z.string().optional(),
+    target: z.string(),
+    targetReps: z.string().optional(),
+    time: z.string().optional(),
+    sets: z.array(z.object({
+      set: z.string(),
+      actualReps: z.string().optional(),
+      load: z.string().optional(),
+      unit: z.string(),
+      notes: z.string().optional(),
+    })),
+  })).min(1, "You must add at least one exercise"),
+});

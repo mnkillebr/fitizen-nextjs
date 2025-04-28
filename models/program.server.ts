@@ -21,6 +21,7 @@ import {
   ProgramExerciseLogSet,
 } from "@/db/schema";
 import { eq, desc, ilike, and } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
 interface NestedProgram {
   id: string;
@@ -523,7 +524,7 @@ export async function saveUserProgramLog(
     const [programLog] = await tx
       .insert(ProgramLog)
       .values({
-        id: crypto.randomUUID(),
+        id: nanoid(),
         userId,
         programId,
         programWeek,
@@ -538,7 +539,7 @@ export async function saveUserProgramLog(
       const [programExerciseLog] = await tx
         .insert(ProgramExerciseLog)
         .values({
-          id: crypto.randomUUID(),
+          id: nanoid(),
           programLogId: programLog.id,
           programBlockId: exerciseLog.programBlockId,
           exerciseId: exerciseLog.exerciseId,
@@ -548,7 +549,7 @@ export async function saveUserProgramLog(
       // Create sets for each exercise log
       for (const set of exerciseLog.sets) {
         await tx.insert(ProgramExerciseLogSet).values({
-          id: crypto.randomUUID(),
+          id: nanoid(),
           programExerciseLogId: programExerciseLog.id,
           set: set.set,
           actualReps: set.actualReps,

@@ -19,12 +19,12 @@ export function ExerciseDialog ({ exercise }: ExerciseDialogProps) {
           className="hover:cursor-pointer min-w-6"
         />
       </DialogTrigger>
-      <DialogContent className="max-w-[425px] lg:max-w-[784px] ">
+      <DialogContent className="sm:max-w-[408px] md:max-w-[550px] lg:max-w-[784px] ">
         <DialogHeader>
           <DialogTitle>{exercise.name}</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col lg:flex-row gap-x-4">
+        <div className="flex flex-row gap-x-4">
           <Tabs className="w-full md:hidden" defaultValue="video">
             <TabsList>
               <TabsTrigger value="video">Video</TabsTrigger>
@@ -61,9 +61,10 @@ export function ExerciseDialog ({ exercise }: ExerciseDialogProps) {
           </Tabs>
           <div className="hidden md:flex md:flex-col w-full">
             <div className="font-bold mb-2 text-muted-foreground">Video</div>
-            <MuxPlayer
-              streamType="on-demand"
-              playbackId={exercise.muxPlaybackId ? exercise.muxPlaybackId : undefined}
+            <div className="max-h-[425px] lg:max-h-[640px]">
+              <MuxPlayer
+                streamType="on-demand"
+                playbackId={exercise.muxPlaybackId ? exercise.muxPlaybackId : undefined}
               tokens={{ playback: exercise.videoToken, thumbnail: exercise.videoToken }}
               metadataVideoTitle="Placeholder (optional)"
               metadataViewerUserId="Placeholder (optional)"
@@ -75,8 +76,9 @@ export function ExerciseDialog ({ exercise }: ExerciseDialogProps) {
                 height: "100%",
                 maxHeight: 640,
                 maxWidth: 360,
-              }}
-            />
+                }}
+              />
+            </div>
           </div>
           <div className="hidden md:flex md:flex-col w-full">
             <div className="font-bold mb-2 text-muted-foreground">Cues</div>

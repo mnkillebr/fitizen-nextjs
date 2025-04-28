@@ -97,7 +97,7 @@ export default function ProgramLogForm({ programId, programWeek, programDay, blo
           <AccordionContent>
             <div
               className={clsx(
-                "rounded-md shadow-md bg-slate-50 py-4 px-3 dark:bg-background-muted flex flex-col gap-y-2",
+                "rounded-md shadow-md py-4 px-3 bg-background-muted flex flex-col gap-y-2",
                 "dark:bg-background-muted dark:border dark:border-border-muted dark:shadow-border-muted"
               )}
             >
@@ -204,7 +204,7 @@ export default function ProgramLogForm({ programId, programWeek, programDay, blo
           <AccordionContent>
             <div
               className={clsx(
-                "rounded-md shadow-md bg-slate-50 py-4 px-3 dark:bg-background-muted flex flex-col gap-y-2",
+                "rounded-md shadow-md py-4 px-3 bg-background-muted flex flex-col gap-y-2",
                 "dark:bg-background-muted dark:border dark:border-border-muted dark:shadow-border-muted"
               )}
             >
@@ -290,7 +290,7 @@ export default function ProgramLogForm({ programId, programWeek, programDay, blo
       <div className="font-semibold text-lg py-4">Exercises</div>
       <div
         className={clsx(
-          "rounded-md shadow-md bg-slate-50 py-4 px-3 dark:bg-background-muted",
+          "rounded-md shadow-md py-4 px-3 bg-background-muted",
           "dark:bg-background-muted dark:border dark:border-border-muted dark:shadow-border-muted"
         )}
       >
@@ -417,7 +417,7 @@ export default function ProgramLogForm({ programId, programWeek, programDay, blo
           <AccordionContent>
             <div
               className={clsx(
-                "rounded-md shadow-md bg-slate-50 py-4 px-3 dark:bg-background-muted flex flex-col gap-y-2",
+                "rounded-md shadow-md py-4 px-3 bg-background-muted flex flex-col gap-y-2",
                 "dark:bg-background-muted dark:border dark:border-border-muted dark:shadow-border-muted"
               )}
             >
