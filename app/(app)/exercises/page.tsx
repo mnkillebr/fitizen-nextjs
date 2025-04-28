@@ -59,7 +59,7 @@ export default async function ExercisesPage({
             )}
           >
             {tokenMappedExercises.map((ex_item) => (
-              <ExerciseCard key={ex_item.id} exercise={ex_item} role={"user"} />
+              <ExerciseCard key={ex_item.id} exercise={ex_item} />
             ))}
           </div>
         ) : (

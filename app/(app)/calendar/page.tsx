@@ -1,11 +1,14 @@
+import CalendarComponent from "./CalendarComponent";
+
 export default async function CalendarPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Calendar</h1>
-        <p className="text-muted-foreground">
-          Welcome to your calendar
-        </p>
+    <div className="@container">
+      <div className="h-[calc(100vh-4rem)]">
+        <CalendarComponent 
+          // submitEvent={() => {}}
+          // formOptions={{ coaches: [], userWorkouts: [] }}
+          // schedule={{ appointments: [], userSessions: [] }}
+        />
       </div>
     </div>
   );
