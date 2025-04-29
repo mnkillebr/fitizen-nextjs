@@ -3,7 +3,7 @@
 import { useState } from "react";
 import clsx from "clsx";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Video } from "lucide-react";
+import { Grip, Video } from "lucide-react";
 import { CheckCircleIcon, PlusCircleIcon } from "@/assets/icons";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
@@ -26,11 +26,12 @@ type ExerciseProps = {
   selectFn?: (...args: any[]) => void;
   selected?: boolean;
   selectCount?: number;
+  draggable?: boolean;
 }
 
-export function ExerciseCard({ exercise, selectable, selectFn, selected, selectCount}: ExerciseProps) {
+export function ExerciseCard({ exercise, selectable, selectFn, selected, selectCount, draggable }: ExerciseProps) {
   return (
-    <Card className="relative h-[calc(29.8vh)] overflow-hidden">
+    <Card className="relative h-[calc(29.7vh)] overflow-hidden">
       <div className="absolute inset-0 z-0 group">
         <ExerciseDialog exercise={exercise}>
           <Image
@@ -46,7 +47,8 @@ export function ExerciseCard({ exercise, selectable, selectFn, selected, selectC
       <div
         className={clsx(
           "absolute bottom-0 left-0 right-0 flex-none flex p-4 justify-between items-center dark:bg-background-muted z-10",
-          selectable ? "bg-background" : "bg-muted hover:shadow-primary"
+          selectable ? "bg-background" : "bg-muted hover:shadow-primary",
+          draggable ? "cursor-grab" : ""
         )}
       >
         <div className="flex flex-col w-full">
@@ -72,6 +74,11 @@ export function ExerciseCard({ exercise, selectable, selectFn, selected, selectC
               {selected ? <CheckCircleIcon className="xs:h-8 xs:w-8 text-primary" /> : <PlusCircleIcon className="xs:h-8 xs:w-8" />}
             </button>
             {selectCount && selectCount > 1 ? <p className="absolute -bottom-1 left-7 z-10 text-xs text-primary">{selectCount}</p> : null}
+          </div>
+        ) : null}
+        {draggable ? (
+          <div className="flex items-center justify-center">
+            <Grip />
           </div>
         ) : null}
       </div>

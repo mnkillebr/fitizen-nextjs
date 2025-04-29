@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import clsx from "clsx";
 import Image from "next/image";
 
 interface ImageCardProps {
@@ -11,7 +12,7 @@ interface ImageCardProps {
 
 export function ImageCard({ title, description, imageUrl, comingSoon = false, type = "program" }: ImageCardProps) {
   return (
-    <Card className="relative h-[calc(30.6vh)] overflow-hidden">
+    <Card className={clsx("relative h-[calc(30.6vh)] overflow-hidden", type === "workout" ? "h-[calc(29.2vh)]" : "")}>
       <div className="absolute inset-0 z-0">
         <Image
           src={imageUrl}

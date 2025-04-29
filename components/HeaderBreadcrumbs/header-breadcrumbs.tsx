@@ -44,7 +44,7 @@ export function HeaderBreadcrumbs() {
           <>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{breadcrumbs[1] ? breadcrumbs[1].label : pathnameParts[2].charAt(0).toUpperCase() + pathnameParts[2].slice(1)}</BreadcrumbPage>
+              <BreadcrumbPage>{breadcrumbs[1] && (pathnameParts[2] !== "create") ? breadcrumbs[1].label : pathnameParts[2].charAt(0).toUpperCase() + pathnameParts[2].slice(1)}</BreadcrumbPage>
             </BreadcrumbItem>
           </>
         ) : null}

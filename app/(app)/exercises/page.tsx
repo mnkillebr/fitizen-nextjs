@@ -53,7 +53,7 @@ export default async function ExercisesPage({
         {tokenMappedExercises.length ? (
           <div
             className={clsx(
-              "flex-1 flex flex-col gap-3 snap-y snap-mandatory overflow-y-auto",
+              "flex-1 flex flex-col gap-4 snap-y snap-mandatory overflow-y-auto",
               "lg:grid lg:grid-cols-2 xl:grid-cols-3",
               "xl:grid-rows-3"
             )}
