@@ -80,3 +80,20 @@ export const workoutLogSchema = z.object({
     })),
   })).min(1, "You must add at least one exercise"),
 });
+
+export const createWorkoutSchema = z.object({
+  workoutName: z.string().min(1, "Workout name is required"),
+  workoutDescription: z.string().optional(),
+  exercises: z.array(z.object({
+    exerciseId: z.string(),
+    circuitId: z.string().optional(),
+    sets: z.string(),
+    target: z.string(),
+    reps: z.string().optional(),
+    rpe: z.string(),
+    time: z.string().optional(),
+    rest: z.string(),
+    notes: z.string().optional(),
+    orderInRoutine: z.string(),
+  })).min(1, "You must add at least one exercise"),
+});

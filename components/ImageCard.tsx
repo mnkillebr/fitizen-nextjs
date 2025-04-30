@@ -22,12 +22,11 @@ export function ImageCard({ title, description, imageUrl, comingSoon = false, ty
           style={{ objectPosition: 'top center', opacity: comingSoon ? 0.6 : 1 }} 
           priority
         />
-        <div className="absolute inset-0 bg-black/40" />
       </div>
       <div className="relative z-10 h-full flex flex-col">
         <CardHeader>
           <CardTitle className="text-white text-shadow-lg">{title}</CardTitle>
-          <CardDescription className="text-white/80 text-shadow-lg">{description}</CardDescription>
+          <CardDescription className="text-white text-shadow-lg">{description}</CardDescription>
         </CardHeader>
         {/* <CardContent className="flex-1">
           <p className="text-white text-shadow font-semibold">{title}</p>

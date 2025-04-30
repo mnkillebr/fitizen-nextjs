@@ -39,10 +39,9 @@ export function ExerciseCard({ exercise, selectable, selectFn, selected, selectC
             alt={exercise.name}
             fill
             className="object-cover"
-            style={{ objectPosition: 'top center', cursor: 'pointer' }} 
+            style={{ objectPosition: 'top center', cursor: 'pointer' }}
           />
         </ExerciseDialog>
-        {/* <div className="absolute inset-0 bg-black/40" /> */}
       </div>
       <div
         className={clsx(

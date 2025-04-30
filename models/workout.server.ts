@@ -247,3 +247,53 @@ export async function getUserWorkoutLog(userId: string, workoutLogId: string): P
     exerciseLogs: Array.from(exerciseLogsMap.values())
   };
 }
+
+export type ExerciseSchemaType = {
+  exerciseId: string;
+  orderInRoutine: number;
+  target: "reps" | "time";
+  sets: string;
+  reps: string;
+  rpe: number;
+  notes: string;
+  time: string;
+  rest: string;
+  side: "left" | "right" | "none";
+  circuitId: string;
+}
+
+export async function createUserWorkout(userId: string, workoutName: string, workoutDescription: string, workoutExercises: Array<ExerciseSchemaType>) {
+  return await db.transaction(async (tx) => {
+    // Create the routine
+    const [routine] = await tx
+      .insert(Routine)
+      .values({
+        id: nanoid(),
+        name: workoutName,
+        description: workoutDescription,
+        userId,
+        createdAt: new Date(),
+      })
+      .returning();
+
+    // Create the routine exercises
+    const routineExercises = workoutExercises.map((exercise, index) => ({
+      routineId: routine.id,
+      exerciseId: exercise.exerciseId,
+      orderInRoutine: exercise.orderInRoutine,
+      target: exercise.target,
+      sets: exercise.sets,
+      reps: exercise.reps,
+      time: exercise.time,
+      notes: exercise.notes,
+      rest: exercise.rest,
+      rpe: exercise.rpe,
+      side: exercise.side,
+      circuitId: exercise.circuitId,
+    }));
+
+    await tx.insert(RoutineExercise).values(routineExercises);
+
+    return routine;
+  });
+}

@@ -1,7 +1,7 @@
 "use server";
 
-import { saveUserWorkoutLog } from "@/models/workout.server";
-import { workoutLogSchema } from "../lib/definitions";
+import { createUserWorkout, saveUserWorkoutLog } from "@/models/workout.server";
+import { createWorkoutSchema, workoutLogSchema } from "../lib/definitions";
 import { newWorkoutLog } from "../lib/sessions";
 import { verifySession } from "../lib/dal";
 import { redirect } from "next/navigation";
@@ -59,6 +59,46 @@ function workoutLogFormDataToObject(formData: FormData): { [key: string]: any } 
   return formDataObject;
 }
 
+function workoutFormDataToObject(formData: FormData): { [key: string]: any } {
+  let formDataObject: { [key: string]: any } = {};
+
+  for (const [key, value] of formData.entries()) {
+    const arrayMatch = key.match(/^(\w+)\[(\d+)\]\.(\w+)$/);
+
+    if (arrayMatch) {
+      const arrayName = arrayMatch[1];
+      const arrayMatchIndex = parseInt(arrayMatch[2], 10);
+      const property = arrayMatch[3];
+
+      if (!formDataObject[arrayName]) {
+        formDataObject[arrayName] = [];
+      }
+
+      if (!formDataObject[arrayName][arrayMatchIndex]) {
+        formDataObject[arrayName][arrayMatchIndex] = {};
+      }
+
+      if (formDataObject[arrayName][arrayMatchIndex][property]) {
+        const currentObjects = formDataObject[arrayName]
+        const lastObject = currentObjects[currentObjects.length - 1];
+
+        if (lastObject.hasOwnProperty(property)) {
+          const newObject = { [property]: value };
+          formDataObject[arrayName].push(newObject);
+        } else {
+          formDataObject[arrayName][currentObjects.length-1][property] = value;
+        }
+      } else {
+        formDataObject[arrayName][arrayMatchIndex][property] = value;
+      }
+    } else {
+      formDataObject[key] = value;
+    }
+  }
+
+  return formDataObject;
+}
+
 export async function createWorkoutLog(prevState: unknown, formData: FormData) {
   const workoutLogObject = workoutLogFormDataToObject(formData);
   const validatedFields = workoutLogSchema.safeParse(workoutLogObject);
@@ -99,4 +139,41 @@ export async function createWorkoutLog(prevState: unknown, formData: FormData) {
     };
   }
   redirect(`/workouts/${workoutId}`);
+}
+
+export async function createWorkout(prevState: unknown, formData: FormData) {
+  const workoutObject = workoutFormDataToObject(formData);
+  const validatedFields = createWorkoutSchema.safeParse(workoutObject);
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  const { workoutName, workoutDescription, exercises } = validatedFields.data;
+
+  try {
+    const { userId } = await verifySession();
+    if (!userId) {
+      return {
+        server_error: "User not authenticated",
+      };
+    }
+
+    const mappedExercises = exercises.map((exercise: any, idx: number) => ({
+      ...exercise,
+      exerciseId: exercise.exerciseId.split("-")[0],
+      orderInRoutine: parseInt(exercise.orderInRoutine),
+      rpe: parseInt(exercise.rpe),
+    }))
+
+   await createUserWorkout(userId as string, workoutName, workoutDescription ?? "", mappedExercises);
+  } catch (err) {
+    console.error("Create workout error:", err);
+    return {
+      server_error: "An unexpected error occurred. Please try again later.",
+    };
+  }
+  redirect(`/workouts`);
 }
