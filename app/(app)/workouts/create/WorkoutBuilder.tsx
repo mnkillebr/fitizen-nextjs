@@ -13,6 +13,7 @@ import { AppPagination } from "@/components/app-pagination";
 import { Button } from "@/components/ui/button";
 import Form from "next/form";
 import { createWorkout } from "@/app/actions/workout-action";
+import { SearchInput } from "@/components/SearchInput";
 
 type Card = {
   id: string;
@@ -324,6 +325,8 @@ export default function WorkoutBuilder({ exercises, page, totalPages }: { exerci
           totalPages={totalPages}
           handleAddExercise={handleAddExercise}
         />
+        {createWorkoutState?.server_error && <p className="text-red-500 text-sm">{createWorkoutState.server_error}</p>}
+        {createWorkoutState?.errors && <p className="text-red-500 text-sm">{createWorkoutState.errors.exercises ? "Please add at least one exercise" : ""}</p>}
         <div className="flex w-full justify-end mt-2">
           <Button className="text-black">Save</Button>
         </div>
@@ -337,6 +340,7 @@ export default function WorkoutBuilder({ exercises, page, totalPages }: { exerci
         id="available-exercises"
       >
         <h2 className="mb-2 text-lg font-semibold">Available Exercises</h2>
+        <SearchInput searchField="exercises" />
         <AvailableExercises exercises={exercises} />
         <AppPagination page={page} totalPages={totalPages} />
       </div>

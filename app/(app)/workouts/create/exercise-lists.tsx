@@ -30,6 +30,7 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/comp
 import { InfoIcon } from 'lucide-react';
 import clsx from 'clsx';
 import { AppPagination } from '@/components/app-pagination';
+import { SearchInput } from '@/components/SearchInput';
 
 function ExerciseDrawer({
   children,
@@ -68,17 +69,18 @@ function ExerciseDrawer({
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Available Exercises</DrawerTitle>
+          <DrawerTitle className="-mb-2">Available Exercises</DrawerTitle>
         </DrawerHeader>
         <div
           className={clsx(
-            "h-full flex flex-col px-6 pt-0 bg-gray-200",
+            "h-full flex flex-col px-4 pt-0 bg-gray-200",
             "dark:bg-background text-foreground overflow-y-auto",
           )}
           id="available-exercises"
         >
+          <SearchInput searchField="exercises" />
           <div
-            className="flex flex-col gap-y-2 md:grid md:grid-cols-2 md:gap-y-3 gap-x-3 overflow-y-auto pb-6 snap-y snap-mandatory"
+            className="flex flex-col gap-y-2 md:grid md:grid-cols-2 md:gap-y-3 gap-x-3 overflow-y-auto pb-4 snap-y snap-mandatory"
             id="available-exercises-list"
           >
             {exercises.map((exercise) => (
@@ -596,7 +598,7 @@ export function AvailableExercises({ exercises }: { exercises: any[] }) {
         <div
           {...provided.droppableProps}
           ref={provided.innerRef}
-          className="flex flex-col gap-y-2 2xl:grid 2xl:grid-cols-2 2xl:gap-y-3 gap-x-3 overflow-y-auto pb-6 snap-y snap-mandatory"
+          className="flex flex-col gap-y-2 2xl:grid 2xl:grid-cols-2 2xl:gap-y-3 gap-x-3 overflow-y-auto pb-4 snap-y snap-mandatory"
           id="available-exercises-list"
         >
           {exercises.map((exercise, index) => (

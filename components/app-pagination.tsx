@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "@/assets/icons";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink } from "@/components/ui/pagination";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type AppPaginationProps = {
   page: number;
@@ -12,11 +12,12 @@ type AppPaginationProps = {
 export function AppPagination({ page, totalPages }: AppPaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
-  const createPageUrl = (pageNum: number) => {
+  const handlePageChange = (pageNum: number) => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("page", pageNum.toString());
-    return `${pathname}?${newSearchParams.toString()}`;
+    router.push(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
   };
 
   const getSiblingPages = () => {
@@ -36,7 +37,7 @@ export function AppPagination({ page, totalPages }: AppPaginationProps) {
         <PaginationContent>
           <PaginationItem>
             <PaginationLink
-              href={createPageUrl(page - 1)}
+              onClick={() => handlePageChange(page - 1)}
               className={page <= 1 ? "pointer-events-none opacity-50" : ""}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -47,7 +48,7 @@ export function AppPagination({ page, totalPages }: AppPaginationProps) {
           {page > 3 && (
             <>
               <PaginationItem>
-                <PaginationLink href={createPageUrl(1)}>
+                <PaginationLink onClick={() => handlePageChange(1)}>
                   1
                 </PaginationLink>
               </PaginationItem>
@@ -60,7 +61,7 @@ export function AppPagination({ page, totalPages }: AppPaginationProps) {
           {getSiblingPages().map((pageNum) => (
             <PaginationItem key={pageNum}>
               <PaginationLink
-                href={createPageUrl(pageNum)}
+                onClick={() => handlePageChange(pageNum)}
                 isActive={pageNum === page}
                 className={pageNum === page ? "bg-primary text-primary-foreground" : ""}
               >
@@ -75,7 +76,7 @@ export function AppPagination({ page, totalPages }: AppPaginationProps) {
                 <PaginationEllipsis />
               </PaginationItem>
               <PaginationItem>
-                <PaginationLink href={createPageUrl(totalPages)}>
+                <PaginationLink onClick={() => handlePageChange(totalPages)}>
                   {totalPages}
                 </PaginationLink>
               </PaginationItem>
@@ -84,7 +85,7 @@ export function AppPagination({ page, totalPages }: AppPaginationProps) {
 
           <PaginationItem>
             <PaginationLink
-              href={createPageUrl(page + 1)}
+              onClick={() => handlePageChange(page + 1)}
               className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
             >
               <ChevronRight className="h-4 w-4" />
