@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { X } from "lucide-react";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { LottieAnimation } from "./LottieAnimation";
 
 export function WorkoutCompletedDialog({ workoutName }: { workoutName: string }) {
   const [isOpen, setIsOpen] = useState(true)
@@ -18,7 +18,7 @@ export function WorkoutCompletedDialog({ workoutName }: { workoutName: string })
               <X className="text-primary-foreground h-6 w-6"/>
             </div>
             <div className="size-72 rounded-full overflow-hidden">
-              <DotLottieReact src="https://lottie.host/207c5cf1-51d7-4917-836d-7251e7b162bd/w8RRmDM4Jf.lottie" autoplay playOnHover />
+              <LottieAnimation src="https://lottie.host/207c5cf1-51d7-4917-836d-7251e7b162bd/w8RRmDM4Jf.lottie" autoplay />
             </div>
           </div>
           <DialogTitle></DialogTitle>

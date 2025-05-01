@@ -65,9 +65,9 @@ export async function getWorkoutById(id: string) {
   };
 };
 
-export async function getWorkoutLogsById(userId: string, routineId: string) {
+export async function getWorkoutLogsByRoutineId(routineId: string) {
   return db.select().from(WorkoutLog)
-    .where(and(eq(WorkoutLog.userId, userId), eq(WorkoutLog.routineId, routineId)));
+    .where(eq(WorkoutLog.routineId, routineId));
 }
 
 export interface ExerciseLogSet {
@@ -169,7 +169,7 @@ interface WorkoutLogWithDetails {
   }>;
 }
 
-export async function getUserWorkoutLog(userId: string, workoutLogId: string): Promise<WorkoutLogWithDetails | null> {
+export async function getUserWorkoutLogByWorkoutLogId(userId: string, workoutLogId: string): Promise<WorkoutLogWithDetails | null> {
   const result = await db.select()
     .from(WorkoutLog)
     .leftJoin(Routine, eq(WorkoutLog.routineId, Routine.id))
@@ -296,4 +296,8 @@ export async function createUserWorkout(userId: string, workoutName: string, wor
 
     return routine;
   });
+}
+
+export function getUserLogs(userId: string) {
+  return db.select().from(WorkoutLog).where(eq(WorkoutLog.userId, userId));
 }

@@ -1,5 +1,5 @@
 import { verifySession } from "@/app/lib/dal";
-import { getUserWorkoutLog } from "@/models/workout.server";
+import { getUserWorkoutLogByWorkoutLogId } from "@/models/workout.server";
 import clsx from "clsx";
 import Link from "next/link";
 import { ChevronLeft } from "@/assets/icons";
@@ -14,7 +14,7 @@ export default async function WorkoutLogViewPage({
 }) {
   const workoutLogId = (await searchParams).id as string;
   const { userId } = await verifySession();
-  const workoutLog = await getUserWorkoutLog(userId as string, workoutLogId);
+  const workoutLog = await getUserWorkoutLogByWorkoutLogId(userId as string, workoutLogId);
 
   if (!workoutLog) {
     return <div>Workout Log not found</div>;

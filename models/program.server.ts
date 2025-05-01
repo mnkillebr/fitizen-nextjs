@@ -276,6 +276,29 @@ export async function getProgramById(id: string): Promise<NestedProgram | null> 
   return result;
 };
 
+export async function getMostRecentUserProgramLog(userId: string) {
+  const result = await db.select({
+    programId: Program.id,
+    programName: Program.name,
+    lastCompletedDate: ProgramLog.date,
+    duration: ProgramLog.duration,
+    s3ImageKey: Program.s3ImageKey,
+  }).from(ProgramLog)
+    .where(eq(ProgramLog.userId, userId))
+    .orderBy(desc(ProgramLog.date))
+    .limit(1)
+    .leftJoin(Program, eq(ProgramLog.programId, Program.id));
+
+  return result[0];
+}
+
+export function getUserProgramLogs(userId: string, count: number = 7) {
+  return db.select().from(ProgramLog)
+    .where(eq(ProgramLog.userId, userId))
+    .orderBy(desc(ProgramLog.date))
+    .limit(count);
+}
+
 export function getUserProgramLogsByProgramId(userId: string, programId: string) {
   return db.select().from(ProgramLog)
     .where(and(eq(ProgramLog.userId, userId), eq(ProgramLog.programId, programId)));

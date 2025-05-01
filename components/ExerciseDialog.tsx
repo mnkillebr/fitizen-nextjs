@@ -40,7 +40,7 @@ export function ExerciseDialog ({ children, exercise }: ExerciseDialogWithChildr
                 metadataVideoTitle="Placeholder (optional)"
                 metadataViewerUserId="Placeholder (optional)"
                 primaryColor="#FFFFFF"
-                secondaryColor="#000000"
+                secondaryColor="#424242"
                 style={{
                   aspectRatio: 9/16,
                   width: "100%",
@@ -71,7 +71,7 @@ export function ExerciseDialog ({ children, exercise }: ExerciseDialogWithChildr
               metadataVideoTitle="Placeholder (optional)"
               metadataViewerUserId="Placeholder (optional)"
               primaryColor="#FFFFFF"
-              secondaryColor="#000000"
+              secondaryColor="#424242"
               style={{
                 aspectRatio: 9/16,
                 width: "100%",

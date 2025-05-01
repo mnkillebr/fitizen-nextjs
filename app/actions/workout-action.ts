@@ -6,27 +6,21 @@ import { newWorkoutLog } from "../lib/sessions";
 import { verifySession } from "../lib/dal";
 import { redirect } from "next/navigation";
 
-interface ExerciseType {
-  exerciseId: string;
-  target: string;
-  sets: {
-    set: string;
-    unit: string;
-    actualReps?: string | undefined;
-    load?: string | undefined;
-    notes?: string | undefined;
-  }[];
-  circuitId?: string | undefined;
-  targetReps?: string | undefined;
-  time?: string | undefined;
-}
-
 interface SetType {
   set: string;
   unit: string;
   actualReps?: string | undefined;
   load?: string | undefined;
   notes?: string | undefined;
+}
+
+interface ExerciseType {
+  exerciseId: string;
+  target: string;
+  sets: SetType[];
+  circuitId?: string | undefined;
+  targetReps?: string | undefined;
+  time?: string | undefined;
 }
 
 function workoutLogFormDataToObject(formData: FormData): { [key: string]: any } {
@@ -121,10 +115,10 @@ export async function createWorkoutLog(prevState: unknown, formData: FormData) {
     
     const mappedExerciseLogs = exercises.map((exercise: ExerciseType, idx: number) => ({
       ...exercise,
+      target: exercise.target === "reps" ? "reps" : "time",
       orderInRoutine: idx + 1,
       sets: exercise.sets.map((set: SetType) => ({
         ...set,
-        target: exercise.target === "reps" ? "reps" : "time",
         load: set.load ? parseFloat(set.load) : undefined,
         unit: set.unit === "bw" ? "bodyweight" : set.unit === "lb(s)" ? "pound" : "kilogram",
       }))

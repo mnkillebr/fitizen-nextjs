@@ -25,8 +25,8 @@ export function ImageCard({ title, description, imageUrl, comingSoon = false, ty
       </div>
       <div className="relative z-10 h-full flex flex-col">
         <CardHeader>
-          <CardTitle className="text-white text-shadow-lg">{title}</CardTitle>
-          <CardDescription className="text-white text-shadow-lg">{description}</CardDescription>
+          <CardTitle className="text-white text-shadow-lg" style={{ textShadow: `2px 2px 2px #424242` }}>{title}</CardTitle>
+          <CardDescription className="text-white text-shadow-lg" style={{ textShadow: `2px 2px 2px #424242` }}>{description}</CardDescription>
         </CardHeader>
         {/* <CardContent className="flex-1">
           <p className="text-white text-shadow font-semibold">{title}</p>
@@ -43,7 +43,7 @@ export function ImageCard({ title, description, imageUrl, comingSoon = false, ty
         </div>
       )}
       {comingSoon && (
-        <div className="absolute inset-0 flex items-center justify-center text-white font-semibold text-4xl">COMING SOON</div>
+        <div className="absolute inset-0 flex items-center justify-center text-white font-semibold text-4xl" style={{ textShadow: `2px 4px 4px #424242` }}>COMING SOON</div>
       )}
     </Card>
   );

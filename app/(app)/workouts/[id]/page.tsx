@@ -20,7 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarIcon, ChevronLeft, ContextMenuIcon, PencilIcon, PlayIcon, TrashIcon, FireIcon, BarsIcon, ClockIcon } from "@/assets/icons";
 import { cookies } from "next/headers";
 import { WorkoutCompletedDialog } from "@/components/WorkoutCompletedDialog";
-import { getWorkoutById, getWorkoutLogsById } from "@/models/workout.server";
+import { getWorkoutById, getWorkoutLogsByRoutineId } from "@/models/workout.server";
 import { ExercisesPanel } from "@/components/ExercisesPanel";
 import { RoutineExercise } from "@/db/schema";
 import { generateMuxThumbnailToken, generateMuxVideoToken } from "@/app/lib/mux-tokens.server";
@@ -91,7 +91,7 @@ export default async function WorkoutIdPage({
   const { id } = await params;
   const workout = await getWorkoutById(id);
   const { userId } = await verifySession();
-  const workoutLogs = await getWorkoutLogsById(userId as string, id);
+  const workoutLogs = await getWorkoutLogsByRoutineId(id);
   const cookieStore = await cookies()
   const newWorkoutLog = JSON.parse(cookieStore.get('fitizen__new_workout_log')?.value || '{}')
 
@@ -194,8 +194,8 @@ export default async function WorkoutIdPage({
             style={{ objectPosition: 'top center' }}
           />
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-all duration-300">
-            <h1 className="text-3xl font-bold text-white text-shadow-lg group-hover:hidden">{workout.name}</h1>
-            <p className="text-white p-4 hidden group-hover:block">{workout.description}</p>
+            <h1 className="text-3xl font-bold text-white text-shadow-lg group-hover:hidden" style={{ textShadow: `2px 2px 2px #424242` }}>{workout.name}</h1>
+            <p className="text-white p-4 hidden group-hover:block" style={{ textShadow: `2px 2px 2px #424242` }}>{workout.description?.length ? workout.description : "No description"}</p>
           </div>
           <div className={clsx(
             "flex justify-around mb-6 *:font-semibold *:flex *:flex-col *:leading-5",
