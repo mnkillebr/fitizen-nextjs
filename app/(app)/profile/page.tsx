@@ -21,7 +21,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="@container">
-      <div className="flex flex-col h-full select-none">
+      <div className="h-[calc(100vh-4rem)] select-none">
         <Tabs defaultValue="general" className="w-full">
           <TabsList>
             <TabsTrigger value="general">General Settings</TabsTrigger>

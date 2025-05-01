@@ -4,13 +4,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Form from "next/form";
 import { User } from "@/db/schema";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { updateUser } from "@/app/actions/user-action";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function UserSettingsForm({ user }: { user: typeof User.$inferSelect }) {
   const [state, dispatch] = useActionState(updateUser, null);
-  
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) {
+      toast.success("User settings successfully updated.");
+      router.replace("/profile");
+    }
+  }, [state]);
+
   const [formData, setFormData] = useState({
     firstName: user.firstName,
     lastName: user.lastName,
@@ -69,7 +79,7 @@ export default function UserSettingsForm({ user }: { user: typeof User.$inferSel
             email: e.target.value
           }))}
           required
-          disabled={user.email === "testuser@email.com"}
+          // disabled={user.email === "testuser@email.com"}
         />
         {state?.errors?.email ? <span className="text-red-500 text-xs">{state?.errors?.email}</span> : null}
       </div>

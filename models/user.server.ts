@@ -67,7 +67,7 @@ export async function getUserFitnessProfile(userId: string) {
 }
 
 export async function updateUserFitnessProfile(userId: string, fitnessProfile: Partial<typeof FitnessProfile.$inferInsert>) {
-  return db.insert(FitnessProfile)
+  const fitnessProfileResult = await db.insert(FitnessProfile)
     .values({
       id: nanoid(),
       userId,
@@ -118,4 +118,5 @@ export async function updateUserFitnessProfile(userId: string, fitnessProfile: P
       medical_medications: FitnessProfile.medical_medications,
       medical_explanation_medications: FitnessProfile.medical_explanation_medications,
     });
+  return fitnessProfileResult[0];
 }

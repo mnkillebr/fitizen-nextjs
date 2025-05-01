@@ -1,6 +1,6 @@
 "use server";
 
-import { createUserWorkout, saveUserWorkoutLog } from "@/models/workout.server";
+import { createUserWorkout, ExerciseLogType, saveUserWorkoutLog } from "@/models/workout.server";
 import { createWorkoutSchema, workoutLogSchema } from "../lib/definitions";
 import { newWorkoutLog } from "../lib/sessions";
 import { verifySession } from "../lib/dal";
@@ -124,7 +124,7 @@ export async function createWorkoutLog(prevState: unknown, formData: FormData) {
       }))
     }))
 
-    const workoutLog = await saveUserWorkoutLog(userId as string, workoutId, duration, mappedExerciseLogs);
+    const workoutLog = await saveUserWorkoutLog(userId as string, workoutId, duration, mappedExerciseLogs as Array<ExerciseLogType>);
     await newWorkoutLog({workoutLogId: workoutLog.id, workoutName: `Workout ${date}`});
   } catch (err) {
     console.error("Workout log error:", err);

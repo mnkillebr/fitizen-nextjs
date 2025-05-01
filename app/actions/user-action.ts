@@ -3,6 +3,7 @@
 import { updateUserFitnessProfile, updateUserProfile } from "@/models/user.server";
 import { verifySession } from "../lib/dal";
 import { updateFitnessProfileSchema, updateUserProfileSchema } from "../lib/definitions";
+import { FitnessProfile } from "@/db/schema";
 
 export async function updateUser(prevState: unknown, formData: FormData) {
   const validatedFields = updateUserProfileSchema.safeParse({
@@ -36,8 +37,6 @@ export async function updateUser(prevState: unknown, formData: FormData) {
 
 export async function updateFitnessProfile(prevState: unknown, formData: FormData) {
   const validatedFields = updateFitnessProfileSchema.safeParse(Object.fromEntries(formData));
-
-  console.log("validatedFields", validatedFields);
 
   if (!validatedFields.success) {
     return {
@@ -87,8 +86,10 @@ export async function updateFitnessProfile(prevState: unknown, formData: FormDat
 
   try {
     const { userId } = await verifySession();
-    console.log("fitnessProfileObj", fitnessProfileObj);
-    await updateUserFitnessProfile(userId as string, fitnessProfileObj);
+    await updateUserFitnessProfile(userId as string, fitnessProfileObj as Partial<typeof FitnessProfile.$inferInsert>);
+    return {
+      success: "Fitness profile updated",
+    };
   } catch (err) {
     console.error("Update user fitness profile error:", err);
     return {
