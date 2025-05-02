@@ -9,6 +9,8 @@ import { getMostRecentUserProgramLog } from "@/models/program.server";
 import { Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { HealthMetrics } from "@/components/HealthMetricsCard";
+import { CaloriesBurned } from "@/components/CaloriesBurnedCard";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -24,9 +26,9 @@ export default async function DashboardPage() {
         )}
       </div>
       <ScrollArea className="h-[calc(100vh-6.25rem)]">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:grid-rows-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:grid-rows-3 lg:grid-rows-2">
           {mostRecentProgramLog ? (
-            <Card className="relative h-[calc(29.7vh)] overflow-hidden">
+            <Card className="relative h-[calc(40vh)] overflow-hidden">
               <div className="absolute inset-0 z-0">
                 <Image
                   src={mostRecentProgramLog.s3ImageKey as string}
@@ -46,6 +48,12 @@ export default async function DashboardPage() {
                   </CardDescription>
                 </CardHeader>
               </div>
+              <div className="relative z-10 w-full">
+                <CardContent className="flex flex-col gap-2">
+                  <CardTitle className="text-white" style={{ textShadow: `2px 2px 2px #424242` }}>Current Progress:</CardTitle>
+                  <Progress value={(1/12) * 100} />
+                </CardContent>
+              </div>
               <div className="relative z-10 w-full flex justify-end">
                 <CardFooter>
                   <Link href={`/programs/${mostRecentProgramLog.programId}/log`}>
@@ -55,7 +63,7 @@ export default async function DashboardPage() {
               </div>
             </Card>
           ) : (
-            <Card className="relative h-[calc(29.7vh)] overflow-hidden">
+            <Card className="relative h-[calc(40vh)] overflow-hidden">
               <div className="absolute inset-0 z-0">
                 <Image
                   src="https://res.cloudinary.com/dqrk3drua/image/upload/f_auto,q_auto/v1746042183/Image_huztyj.jpg"
@@ -78,13 +86,41 @@ export default async function DashboardPage() {
                 </CardHeader>
               </div>
               <div className="relative z-10 w-full flex justify-end">
-                <CardFooter>
-                  <Button className="text-black">Generate Program</Button>
+                <CardFooter className="flex justify-end">
+                  <Button className="text-black cursor-pointer"><Sparkles className="size-5" />Generate Program</Button>
                 </CardFooter>
               </div>
             </Card>
           )}
-          <Card className="h-[calc(29.7vh)]">
+          <Card className="relative h-[calc(40vh)] overflow-hidden">
+            <div className="absolute inset-0 z-0">
+              <Image
+                src="https://res.cloudinary.com/dqrk3drua/image/upload/f_auto,q_auto/v1735576215/fitizen/gn88ph2mplriuumncv2a.jpg"
+                alt="Generate a workout"
+                fill
+                className="object-cover"
+                style={{ objectPosition: 'top center' }} 
+                priority
+              />
+            </div>
+            <div className="relative z-10 h-full flex flex-col">
+              <CardHeader className="text-white text-shadow">
+                <CardTitle className="flex items-center gap-2 text-white text-shadow-lg" style={{ textShadow: `2px 2px 2px #424242` }}>
+                  Generate a custom workout
+                  <Sparkles className="size-5" />
+                </CardTitle>
+                <CardDescription className="text-white/90 text-shadow-lg" style={{ textShadow: `2px 2px 2px #424242` }}>
+                  Generate a custom workout with AI
+                </CardDescription>
+              </CardHeader>
+            </div>
+            <div className="relative z-10 w-full flex justify-end">
+              <CardFooter>
+                <Button className="text-black cursor-pointer"><Sparkles className="size-5" />Generate Workout</Button>
+              </CardFooter>
+            </div>
+          </Card>
+          <Card className="h-[calc(40vh)]">
             <CardHeader>
               <CardTitle>Current Goals</CardTitle>
             </CardHeader>
@@ -108,22 +144,24 @@ export default async function DashboardPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="h-[calc(29.7vh)] overflow-hidden">
+          <HealthMetrics />
+          <CaloriesBurned />
+          <Card className="h-[calc(40vh)] overflow-hidden">
             <CardHeader>
               <CardTitle>Badges Earned</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
-                <div className="bg-secondary rounded-full size-28">
+                <div className="bg-border-muted rounded-full size-24 place-self-center">
                   <LottieAnimation src="https://lottie.host/d9ca4231-7cb9-4437-be77-397465351573/e2ufJZ2S0F.lottie" autoplay />
                 </div>
-                <div className="bg-secondary rounded-full size-28">
+                <div className="bg-border-muted rounded-full size-24 place-self-center">
                   <LottieAnimation src="https://lottie.host/5e3d37d8-7ea3-4626-aed2-2617047b6311/ZPJx1xWx16.lottie" autoplay />
                 </div>
-                <div className="bg-secondary rounded-full size-28">
+                <div className="bg-border-muted rounded-full size-24 place-self-center">
                   <LottieAnimation src="https://lottie.host/c0b5eec3-e1c7-4065-bdea-bf11d37a21c3/6BlcYLT455.lottie" autoplay />
                 </div>
-                <div className="bg-secondary rounded-full size-28">
+                <div className="bg-border-muted rounded-full size-24 place-self-center">
                   <LottieAnimation src="https://lottie.host/c830d42c-9528-4d7b-a1bd-70ea604557ae/cFaie3RG1d.lottie" autoplay />
                 </div>
               </div>

@@ -48,6 +48,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-day-picker": "8.10.1",
     "react-dom": "^19.0.0",
+    "recharts": "^2.15.3",
     "sonner": "^2.0.3",
     "swr": "^2.3.3",
     "tailwind-merge": "^3.2.0",
@@ -82,5 +83,8 @@
     "typescript": "^5",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.1.1"
+  },
+  "overrides": {
+    "react-is": "^19.0.0-rc-69d4b800-20241021"
   }
 }
