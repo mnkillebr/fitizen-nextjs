@@ -1,7 +1,7 @@
 "use server";
 
 import { createUserWorkout, ExerciseLogType, saveUserWorkoutLog } from "@/models/workout.server";
-import { createWorkoutSchema, workoutLogSchema } from "../lib/definitions";
+import { createWorkoutSchema, workoutLogSchema, generateWorkoutSchema } from "../lib/definitions";
 import { newWorkoutLog } from "../lib/sessions";
 import { verifySession } from "../lib/dal";
 import { redirect } from "next/navigation";
@@ -170,4 +170,43 @@ export async function createWorkout(prevState: unknown, formData: FormData) {
     };
   }
   redirect(`/workouts`);
+}
+
+export async function generateWorkout(prevState: unknown, formData: FormData) {
+  const validatedFields = generateWorkoutSchema.safeParse(Object.fromEntries(formData));
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  const { location, type, focus, time } = validatedFields.data;
+
+  try {
+    const { userId } = await verifySession();
+    if (!userId) {
+      return {
+        server_error: "User not authenticated",
+      };
+    }
+
+    // TODO: Generate workout with workout generator crew
+
+    // TODO: Map and save workout to database
+    
+  //   const mappedExercises = exercises.map((exercise: any, idx: number) => ({
+  //     ...exercise,
+  //     exerciseId: exercise.exerciseId.split("-")[0],
+  //     orderInRoutine: parseInt(exercise.orderInRoutine),
+  //     rpe: parseInt(exercise.rpe),
+  //   }))
+
+  //  await createUserWorkout(userId as string, workoutName, workoutDescription ?? "", mappedExercises);
+  } catch (err) {
+    console.error("Generate workout error:", err);
+    return {
+      server_error: "An unexpected error occurred. Please try again later.",
+    };
+  }
+  // redirect(`/workouts`);
 }

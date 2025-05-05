@@ -116,7 +116,9 @@ export default async function DashboardPage() {
             </div>
             <div className="relative z-10 w-full flex justify-end">
               <CardFooter>
-                <Button className="text-black cursor-pointer"><Sparkles className="size-5" />Generate Workout</Button>
+                <Link href="/workouts/generate">
+                  <Button className="text-black cursor-pointer"><Sparkles className="size-5" />Generate Workout</Button>
+                </Link>
               </CardFooter>
             </div>
           </Card>

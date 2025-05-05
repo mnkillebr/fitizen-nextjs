@@ -152,3 +152,10 @@ export const updateFitnessProfileSchema = z.object({
   medications: z.string().optional(),
   explanation_medications: z.string().optional(),
 })
+
+export const generateWorkoutSchema = z.object({
+  location: z.string(),
+  type: z.string(),
+  focus: z.string(),
+  time: z.string(),
+})
