@@ -1,0 +1,95 @@
+fitness_profile_breakdown:
+  description: >
+    Carefully analyze the fitness_profile for the {client}
+    and use the answers to provide general guidelines for a fitness program.
+
+    If the {client} indicates any of the following, we inform them that they should
+    consult with a medical practioner first:
+      -heart condition and needs doctor prescribed program
+      -chest pain
+      -experience dizziness or loss of consciousness during physical activity
+      -bone or joint problems that can be worsened by physical activity
+      -taking blood pressure medication
+      -any other reason they should avoid physical activity
+
+    Take special consideration for individuals who are sedentary due to occupation.
+    If an individual has an recreational activities that could benefit from specific exercises,
+    be sure to make special mention of them.
+    Also take consideration of pain. There are movements that can help reduce or eliminate pain and reduce the risk of injury.
+
+    {fitness_profile}
+
+  expected_output: >
+    If a {client} needs to consult a medical practitioner per their {fitness_profile} answers, we refuse programming.
+    If they do not require a medical consultation, we provide a comprehensive list of exercise considerations.
+    These considerations should include exercises to avoid if there are contraindications. These considerations should
+    include exercises that can improve their performance in any sports or other physical activities. These considerations
+    should include stretches, mobility drills and corrective exercises that can help the individual reduce pain and the risk of injury.
+    Keep the considerations within reason for a 4-week period and make sure to include progressions for the future.
+    Lastly, your final output MUST include a recommendation for how many sessions per week the {client} should exercise.
+    It should be a minimum of two workout sessions per week to a maximum of four; pick a number, not a range, and include your reasoning for your pick.
+
+
+fitness_program_designer:
+  description: >
+    Carefully review the exercise considerations and design a full fitness program for the desired program length.
+    Generate the appropriate workouts based on the recommended amount of sessions per week.
+    Then repeat the weekly format, with variations and progressions, for the total number of weeks in the program.
+    Each workout should be full body and include all of the {movement_patterns}. Make sure that the client is not repeating the same
+    workout for each day in a week. Vary the workouts throughout the week so the exercises vary in {movement_plane} or {balance_type}.
+
+    For example, let's say the client is recommended two workout sessions per week.
+    On day 1, we recommend a goblet squat and on day 2 we recommend a goblet split squat.
+    Both of these are variations of a squat with similar benfits; but by changing the balance we make the workouts more well-rounded.
+
+    The format for each workout day should include movement prep, warm-up, main exercise circuits and a cooldown.
+
+    With your extensive experience, you are able to properly scale and periodize programs to reinforce good habits, incorporate new challenges and realize goals.
+
+  expected_output: >
+    A comprehensive spreadsheet that breaks down the exercises for each workout for the recommended number of sessions per week.
+    Each workout should contain a warm-up, main exercises and cooldown.
+
+    The warm-up should include foam-rolling, stretching, mobility and activation drills that are relevant the exercise in the main exercise block.
+    The warm-up exercises should be capped at 8. Each exercise in the warm-up should be one set but you can specify the number of reps.
+
+    The main exercise block should be broken down into three circuits of two or more exercises, with at least two rounds per circuit.
+    The exercises in the main block should cover all the {movement_patterns}. Make sure you output includes a rest period for each circuit that is at least 60-90 seconds.
+
+    The cooldown should include at least one form of conditioning. This could be a 5 minute cooldown on the elliptical or something as simple as a 15 minute walk on an incline.
+    
+    Based on the recommended amount of sessions per week, come up with a weekly split. For example, if recommended 3 sessions/week you may have
+    full body endurance on day 1, full body strength on day 2 and athletic conditioning on day 3.
+    For each session in the weekly split, estimate a realistic time that it may take to complete.
+
+    Strategically progress the workouts for each week for a total of four weeks to create a four week program.
+    The weekly split should repeat each week, with progressions to the amount of sets, reps or time.
+    
+    For example, Week 1 - Day 1 may have a circuit that contains two rounds of goblet squats, pike push-ups and tall kneeling pallof presses.
+    Each exercise in the circuit requires 12 reps. Then in Week 2 - Day 1, you repeat the same circuit but progress to three rounds instead of two.
+    This way, the client has the ability to have progressive overload in the exercises to build a foundation of strength.
+    Formatted for legibility as plain text without '```
+
+
+workout_time_estimation:
+  description: >
+    Thoroughly evaluate each workout and the underlying exercises to estimate a realistic time that it may take to complete in minuts.
+  expected_output: >
+    An approximate estimation of time to complete each workout. This includes time for warm-up, main block exercises,
+    rest between circuits, cooldown and extra time for moving between sections.
+
+
+program_planner:
+  description: >
+    Strategically progress the workouts for each week for a total of four weeks to create a four week program.
+    The workouts should repeat each week, with progressions to the amount of sets and reps.
+    
+    For example, Week 1 - Day 1 may have a circuit that contains two rounds of goblet squats, pike push-ups and tall kneeling pallof presses.
+    Each exercise in the circuit requires 12 reps. Then in Week 2 - Day 1, you repeat the same circuit but progress to three rounds instead of two.
+    This way, the client has the ability to have progressive overload in the exercises to build a foundation of strength.
+
+  expected_output: >
+    A spreadsheet that contains four weeks of workouts with 2-4 workouts per week (based on the recommendation from the fitness_profile_breakdown).
+    We should see moderate progressions in the exercises each week. Formatted as markdown without '```'
+  output_file: fitness_program.md
+

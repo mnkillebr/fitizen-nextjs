@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +11,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, LoaderCircle, Sparkles } from "lucide-react";
 import { FitnessProfile } from "@/db/schema";
 import Form from "next/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { updateFitnessProfile } from "@/app/actions/user-action";
+import { fitnessProfileActions } from "@/app/actions/user-action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -112,13 +112,35 @@ const GENERAL_HISTORY = {
 const skipExplanationIds = ["extended-sitting", "heel-shoes", "mental-stress"]
 
 export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof FitnessProfile.$inferSelect }) {
-  const [profileState, dispatch] = useActionState(updateFitnessProfile, null)
+  const [profileState, dispatch, pending] = useActionState(fitnessProfileActions, null)
   const router = useRouter();
+  const txtDownloadRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     if (profileState?.success) {
       toast.success("Fitness profile successfully updated.");
       router.replace("/profile");
+    } else if (profileState?.raw_output) {
+      const content = profileState.raw_output
+      const textBlob = new Blob([content], { type: "text/plain" });
+      // const mdBlob = new Blob([content], { type: "text/markdown" });
+
+      const txtUrl = URL.createObjectURL(textBlob);
+      // const mdUrl = URL.createObjectURL(mdBlob);
+      if (txtDownloadRef.current) {
+        txtDownloadRef.current.href = txtUrl;
+        txtDownloadRef.current.download = "ai_generated_program.txt";
+        txtDownloadRef.current.click();
+      }
+      // if (mdDownloadRef.current) {
+      //   mdDownloadRef.current.href = mdUrl;
+      //   mdDownloadRef.current.download = "ai_generated_program.md";
+      //   mdDownloadRef.current.click();
+      // }
+      return () => {
+        URL.revokeObjectURL(txtUrl);
+        // URL.revokeObjectURL(mdUrl);
+      };
     }
   }, [profileState]);
 
@@ -185,7 +207,7 @@ export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof Fit
         : [...current, goalId]
     );
   };
-
+  // console.log("profileState", profileState, "pending", pending)
   useEffect(() => {
     const hasYesAnswers = Object.values(parqAnswers).some(answer => answer === true);
     setShowParqWarning(hasYesAnswers);
@@ -253,6 +275,7 @@ export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof Fit
 
   return (
     <Form action={dispatch} className="flex flex-col gap-y-4">
+      <a ref={txtDownloadRef} style={{ display: "none" }} />
       <div className="text-muted-foreground">Keep your fitness profile up to date.</div>
       {/* <ScrollArea className="h-[calc(100vh-12.5rem)]"> */}
         <div className="space-y-4">
@@ -469,7 +492,24 @@ export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof Fit
         </div>
       {/* </ScrollArea> */}
       <div className="flex justify-end">
-        <Button type="submit" className="text-black">Save Fitness Profile</Button>
+        <div className="flex gap-x-2">
+          <Button
+            type="submit"
+            className="text-black"
+            name="_action"
+            value="generatePARQProgram"
+          >
+            {pending ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}{pending ? "Generating" : "Generate"} PAR-Q Program
+          </Button>
+          <Button
+            type="submit"
+            className="text-black"
+            name="_action"
+            value="updateFitnessProfile"
+          >
+            Save Fitness Profile
+          </Button>
+        </div>
       </div>
     </Form>
   );
