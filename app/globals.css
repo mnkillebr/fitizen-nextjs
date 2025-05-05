@@ -132,6 +132,12 @@
 
 }
 
+.copilotKitWindow {
+  border-radius: 16px !important;
+  padding-bottom: 12px !important;
+  background-color: var(--popover) !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

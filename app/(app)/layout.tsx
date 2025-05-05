@@ -6,7 +6,7 @@ import { getCurrentUser } from "../lib/dal";
 import { redirect } from "next/navigation";
 import { HeaderBreadcrumbs } from "@/components/HeaderBreadcrumbs/header-breadcrumbs";
 import { BreadcrumbsProvider } from "@/components/breadcrumbs-provider";
-
+import Copilot from "@/components/Copilot";
 export default async function DashboardLayout({
   children,
 }: {
@@ -34,6 +34,7 @@ export default async function DashboardLayout({
           <main className="flex flex-1 flex-col gap-4 px-6 pt-0 mx-auto max-w-[1440px] w-full">
             {children}
           </main>
+          <Copilot />
         </SidebarInset>
       </SidebarProvider>
     </BreadcrumbsProvider>

@@ -15,7 +15,7 @@ import { CaloriesBurned } from "@/components/CaloriesBurnedCard";
 export default async function DashboardPage() {
   const user = await getCurrentUser();
   const mostRecentProgramLog = await getMostRecentUserProgramLog(user?.id as string);
-  console.log("mostRecentProgramLog", mostRecentProgramLog);
+  // console.log("mostRecentProgramLog", mostRecentProgramLog);
   return (
     <div className="@container">
       <div className="mb-2">

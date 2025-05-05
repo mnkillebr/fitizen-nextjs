@@ -11,6 +11,9 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@copilotkit/react-core": "^1.8.9",
+    "@copilotkit/react-ui": "^1.8.9",
+    "@copilotkit/runtime": "^1.8.9",
     "@lottiefiles/dotlottie-react": "^0.13.4",
     "@mux/mux-player-react": "^3.3.4",
     "@prisma/client": "6.6.0",
