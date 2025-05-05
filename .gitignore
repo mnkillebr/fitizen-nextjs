@@ -40,14 +40,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Python-generated files
-agents/__pycache__/
-agents/*.py[oc]
-agents/build/
-agents/dist/
-agents/wheels/
-agents/*.egg-info
 
 # Virtual environments
-agents/.venv
+.venv
+
+# agents folder python files
+/agents/**/__pycache__/
+/agents/**/*.py[oc]
+/agents/**/build/
+/agents/**/dist/
+/agents/**/wheels/
+/agents/**/*.egg-info
 
