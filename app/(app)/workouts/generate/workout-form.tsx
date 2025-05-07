@@ -34,9 +34,8 @@ export function WorkoutForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<WorkoutFormData>(initialFormData);
 
-  console.log("formData", formData);
   const totalSteps = 4;
-  const progress = (currentStep / totalSteps) * 100;
+  const progress = (Object.values(formData).filter(value => value !== null).length / Object.keys(formData).length) * 100;
 
   const isStepComplete = (step: number) => {
     switch (step) {
@@ -71,13 +70,13 @@ export function WorkoutForm() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (Object.values(formData).every(value => value !== null)) {
-      // Handle form submission here
-      console.log("Form submitted:", formData);
-    }
-  };
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (Object.values(formData).every(value => value !== null)) {
+  //     // Handle form submission here
+  //     console.log("Form submitted:", formData);
+  //   }
+  // };
 
   const renderStep = () => {
     switch (currentStep) {

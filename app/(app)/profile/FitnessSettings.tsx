@@ -274,10 +274,10 @@ export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof Fit
   );
 
   return (
-    <Form action={dispatch} className="flex flex-col gap-y-4">
+    <Form action={dispatch} className="flex flex-col gap-y-4 overflow-hidden">
       <a ref={txtDownloadRef} style={{ display: "none" }} />
       <div className="text-muted-foreground">Keep your fitness profile up to date.</div>
-      {/* <ScrollArea className="h-[calc(100vh-12.5rem)]"> */}
+      <ScrollArea className="h-[calc(100vh-12.5rem)]">
         <div className="space-y-4">
           {/* Height Settings */}
           <Card>
@@ -490,7 +490,7 @@ export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof Fit
             </CardContent>
           </Card>
         </div>
-      {/* </ScrollArea> */}
+      </ScrollArea>
       <div className="flex justify-end">
         <div className="flex gap-x-2">
           <Button

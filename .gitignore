@@ -44,11 +44,11 @@ next-env.d.ts
 # Virtual environments
 .venv
 
-# agents folder python files
-/agents/**/__pycache__/
-/agents/**/*.py[oc]
-/agents/**/build/
-/agents/**/dist/
-/agents/**/wheels/
-/agents/**/*.egg-info
+# python generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
 

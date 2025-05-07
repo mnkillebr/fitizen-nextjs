@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Form, Query
 
 from agents.models.profile import Client, FitnessProfile
-from agents.crews.parq_program_crew import client, fitness_profile, movement_patterns, movement_plane, balance_type, parq_program_crew
+from agents.crews.parq_program_crew.parq_program_crew import client, fitness_profile, movement_patterns, movement_plane, balance_type, parq_program_crew
 
 router = APIRouter(
     prefix="/programs",

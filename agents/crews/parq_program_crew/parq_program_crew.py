@@ -1,7 +1,7 @@
 import yaml
 from crewai import Agent, Task, Crew, LLM
 from crewai.knowledge.source.pdf_knowledge_source import PDFKnowledgeSource
-from models.program import FitnessProgram
+# from models.program import FitnessProgram
 from models.profile import Client, FitnessProfile
 from models.movement import MovementPattern, MovementPlane, BalanceType
 from core.config import settings
@@ -9,15 +9,15 @@ from core.config import settings
 import os
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY
 # initialize models
-qwen_qwq_llm = LLM(model="groq/qwen-qwq-32b", api_key=settings.GROQ_API_KEY)
-llama70b_llm = LLM(model="groq/llama-3.3-70b-versatile", api_key=settings.GROQ_API_KEY)
-gpt_4o_llm = LLM(model="openai/gpt-4o-mini", api_key=settings.OPENAI_API_KEY)
+# qwen_qwq_llm = LLM(model="groq/qwen-qwq-32b", api_key=settings.GROQ_API_KEY)
+# llama70b_llm = LLM(model="groq/llama-3.3-70b-versatile", api_key=settings.GROQ_API_KEY)
+# gpt_4o_llm = LLM(model="openai/gpt-4o-mini", api_key=settings.OPENAI_API_KEY)
 llama8b_llm = LLM(model="groq/llama-3.1-8b-instant", api_key=settings.GROQ_API_KEY)
 
 # Define file paths for YAML configurations
 files = {
-    'agents': 'crew_configs/programs/agents.yaml',
-    'tasks': 'crew_configs/programs/tasks.yaml'
+    'agents': 'crews/parq_program_crew/config/agents.yaml',
+    'tasks': 'crews/parq_program_crew/config/tasks.yaml'
 }
 
 # Load configurations from YAML files
@@ -34,8 +34,7 @@ tasks_config = configs['tasks']
 pdf_source = PDFKnowledgeSource(
     file_paths=[
         "CFSC_Regression:Progression_Sheet_2023.pdf",
-        # "AdultProgram_Phase1_2021.pdf"
-        ]
+    ]
     
 )
 
