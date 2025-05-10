@@ -97,7 +97,7 @@ export async function fitnessProfileActions(prevState: unknown, formData: FormDa
       clientParams.set("email", email);
       
       try {
-        const programResponse = await fetch(`http://127.0.0.1:8000/programs/parq_program?${clientParams.toString()}`, {
+        const programResponse = await fetch(`${process.env.API_BASE_URL}/programs/parq_program?${clientParams.toString()}`, {
           method: "POST",
           headers: {
             'Accept': 'application/json',

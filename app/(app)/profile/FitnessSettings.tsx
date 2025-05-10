@@ -18,6 +18,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { fitnessProfileActions } from "@/app/actions/user-action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const FITNESS_GOALS = [
   { id: "fat-loss", label: "Fat Loss" },
@@ -111,10 +112,15 @@ const GENERAL_HISTORY = {
 
 const skipExplanationIds = ["extended-sitting", "heel-shoes", "mental-stress"]
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof FitnessProfile.$inferSelect }) {
   const [profileState, dispatch, pending] = useActionState(fitnessProfileActions, null)
   const router = useRouter();
   const txtDownloadRef = useRef<HTMLAnchorElement>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [events, setEvents] = useState<Array<{ type: string; message: string; timestamp: number }>>([]);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     if (profileState?.success) {
@@ -123,26 +129,63 @@ export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof Fit
     } else if (profileState?.raw_output) {
       const content = profileState.raw_output
       const textBlob = new Blob([content], { type: "text/plain" });
-      // const mdBlob = new Blob([content], { type: "text/markdown" });
-
       const txtUrl = URL.createObjectURL(textBlob);
-      // const mdUrl = URL.createObjectURL(mdBlob);
       if (txtDownloadRef.current) {
         txtDownloadRef.current.href = txtUrl;
         txtDownloadRef.current.download = "ai_generated_program.txt";
         txtDownloadRef.current.click();
       }
-      // if (mdDownloadRef.current) {
-      //   mdDownloadRef.current.href = mdUrl;
-      //   mdDownloadRef.current.download = "ai_generated_program.md";
-      //   mdDownloadRef.current.click();
-      // }
       return () => {
         URL.revokeObjectURL(txtUrl);
-        // URL.revokeObjectURL(mdUrl);
       };
     }
   }, [profileState]);
+
+  // Handle SSE connection
+  useEffect(() => {
+    if (isDialogOpen) {
+      // Clear previous events
+      setEvents([]);
+      
+      // Create new EventSource connection with the full URL
+      const eventSource = new EventSource(`${API_BASE_URL}/programs/parq_program/events`);
+      eventSourceRef.current = eventSource;
+
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        let message = '';
+        
+        switch(data.type) {
+          case 'crew_started':
+            message = `Crew ${data.crew_name} has started execution!`;
+            break;
+          case 'agent_completed':
+            message = `Agent ${data.agent_role} completed task\nOutput: ${data.output}`;
+            break;
+          case 'crew_completed':
+            message = `Crew ${data.crew_name} has completed execution!\nFinal output: ${data.output}`;
+            eventSource.close();
+            break;
+        }
+
+        setEvents(prev => [...prev, {
+          type: data.type,
+          message,
+          timestamp: data.timestamp
+        }]);
+      };
+
+      eventSource.onerror = (error) => {
+        console.error('EventSource failed:', error);
+        eventSource.close();
+      };
+
+      return () => {
+        eventSource.close();
+        eventSourceRef.current = null;
+      };
+    }
+  }, [isDialogOpen]);
 
   const incomingFitnessGoals = Object.entries(fitnessProfile).reduce((result: string[], curr) => {
     let resultArr = result
@@ -274,243 +317,287 @@ export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof Fit
   );
 
   return (
-    <Form action={dispatch} className="flex flex-col gap-y-4 overflow-hidden">
-      <a ref={txtDownloadRef} style={{ display: "none" }} />
-      <div className="text-muted-foreground">Keep your fitness profile up to date.</div>
-      <ScrollArea className="h-[calc(100vh-12.5rem)]">
-        <div className="space-y-4">
-          {/* Height Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Height</CardTitle>
-              <CardDescription>
-                Set your height
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <RadioGroup
-                  defaultValue={selectedHeightUnit}
-                  onValueChange={(value) => setSelectedHeightUnit(value as "in" | "cm")}
-                  className="flex space-x-4"
-                  name="heightUnit"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="in" id="in" />
-                    <Label htmlFor="in">Inches (in)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="cm" id="cm" />
-                    <Label htmlFor="cm">Centimeters (cm)</Label>
-                  </div>
-                </RadioGroup>
+    <>
+      <Form action={dispatch} className="flex flex-col gap-y-4 overflow-hidden">
+        <a ref={txtDownloadRef} style={{ display: "none" }} />
+        <div className="text-muted-foreground">Keep your fitness profile up to date.</div>
+        <ScrollArea className="h-[calc(100vh-12.5rem)]">
+          <div className="space-y-4">
+            {/* Height Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Height</CardTitle>
+                <CardDescription>
+                  Set your height
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-4">
+                  <RadioGroup
+                    defaultValue={selectedHeightUnit}
+                    onValueChange={(value) => setSelectedHeightUnit(value as "in" | "cm")}
+                    className="flex space-x-4"
+                    name="heightUnit"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="in" id="in" />
+                      <Label htmlFor="in">Inches (in)</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="cm" id="cm" />
+                      <Label htmlFor="cm">Centimeters (cm)</Label>
+                    </div>
+                  </RadioGroup>
 
-                <div className="space-y-2 sm:w-1/2">
-                  <Label htmlFor="user-height">Height</Label>
+                  <div className="space-y-2 sm:w-1/2">
+                    <Label htmlFor="user-height">Height</Label>
+                    <Input
+                      id="user-height"
+                      name="userHeight"
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={height}
+                      onChange={(e) => setHeight(e.target.value)}
+                      placeholder={`Enter height in ${selectedHeightUnit === "in" ? "inches" : "centimeters"}`}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Weight Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Weight Goals</CardTitle>
+                <CardDescription>
+                  Set your current and target weights
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-4">
+                  <RadioGroup
+                    defaultValue={selectedUnit}
+                    onValueChange={(value) => setSelectedUnit(value as "lbs" | "kg")}
+                    className="flex space-x-4"
+                    name="unit"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="lbs" id="lbs" />
+                      <Label htmlFor="lbs">Pounds (lbs)</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="kg" id="kg" />
+                      <Label htmlFor="kg">Kilograms (kg)</Label>
+                    </div>
+                  </RadioGroup>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="current-weight">Current Weight</Label>
+                      <Input
+                        id="current-weight"
+                        name="currentWeight"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={weights.current}
+                        onChange={(e) => setWeights(prev => ({ ...prev, current: e.target.value }))}
+                        placeholder={`Enter weight in ${selectedUnit}`}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="target-weight">Target Weight</Label>
+                      <Input
+                        id="target-weight"
+                        name="targetWeight"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={weights.target}
+                        onChange={(e) => setWeights(prev => ({ ...prev, target: e.target.value }))}
+                        placeholder={`Enter weight in ${selectedUnit}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Fitness Goals */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Fitness Goals</CardTitle>
+                <CardDescription>
+                  Select one or more fitness goals you'd like to achieve
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  {FITNESS_GOALS.map(({ id, label }) => (
+                    <div key={id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={id}
+                        name={id}
+                        checked={selectedGoals.includes(id)}
+                        onCheckedChange={() => handleGoalToggle(id)}
+                      />
+                      <Label htmlFor={id}>{label}</Label>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* PAR-Q Form */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Physical Activity Readiness Questionnaire (PAR-Q)</CardTitle>
+                <CardDescription>
+                  Please answer the following questions honestly and accurately
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {showParqWarning && (
+                  <Alert variant="destructive" className="mb-6">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Medical Consultation Required</AlertTitle>
+                    <AlertDescription>
+                      You've answered YES to one or more PAR-Q questions. Please consult your physician
+                      before engaging in physical activity. Show your physician which questions you
+                      answered YES to and follow their advice on what type of activity is suitable
+                      for your current condition.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <div className="space-y-6">
+                  {PARQ_QUESTIONS.map(({ id, question }) => (
+                    <div key={id} className="space-y-2">
+                      <Label className="text-base">{question}</Label>
+                      <RadioGroup
+                        value={parqAnswers[id]?.toString()}
+                        onValueChange={(value) => 
+                          setParqAnswers(prev => ({
+                            ...prev,
+                            [id]: value === "true"
+                          }))
+                        }
+                        name={id}
+                        className="flex space-x-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="true" id={`${id}-yes`} />
+                          <Label htmlFor={`${id}-yes`}>Yes</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="false" id={`${id}-no`} />
+                          <Label htmlFor={`${id}-no`}>No</Label>
+                        </div>
+                      </RadioGroup>
+                      <Separator className="mt-4" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* General and Medical History */}
+            <Card>
+              <CardHeader>
+                <CardTitle>General and Medical History</CardTitle>
+                <CardDescription>
+                  Please provide information about your occupation, recreational activities, and medical history
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-8">
+                <div className="space-y-4">
+                  <Label htmlFor="occupation" className="text-lg font-semibold">
+                    What is your current occupation?
+                  </Label>
                   <Input
-                    id="user-height"
-                    name="userHeight"
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={height}
-                    onChange={(e) => setHeight(e.target.value)}
-                    placeholder={`Enter height in ${selectedHeightUnit === "in" ? "inches" : "centimeters"}`}
+                    id="occupation"
+                    name="occupation"
+                    autoComplete="off"
+                    value={occupation}
+                    onChange={(e) => setOccupation(e.target.value)}
+                    placeholder="Enter your current occupation"
                   />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+                
+                {renderHistorySection("Occupational", GENERAL_HISTORY.occupational)}
+                <Separator className="my-6" />
+                
+                {renderHistorySection("Recreational", GENERAL_HISTORY.recreational)}
+                <Separator className="my-6" />
+                
+                {renderHistorySection("Medical", GENERAL_HISTORY.medical)}
+              </CardContent>
+            </Card>
+          </div>
+        </ScrollArea>
+        <div className="flex justify-end">
+          <div className="flex gap-x-2">
+            <Button
+              type="submit"
+              className="text-black"
+              name="_action"
+              id="generatePARQProgram"
+              value="generatePARQProgram"
+              onClick={() => setIsDialogOpen(true)}
+            >
+              {pending ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}{pending ? "Generating" : "Generate"} PAR-Q Program
+            </Button>
+            <Button
+              type="submit"
+              className="text-black"
+              name="_action"
+              id="updateFitnessProfile"
+              value="updateFitnessProfile"
+            >
+              Save Fitness Profile
+            </Button>
+          </div>
+        </div>
+      </Form>
 
-          {/* Weight Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Weight Goals</CardTitle>
-              <CardDescription>
-                Set your current and target weights
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <RadioGroup
-                  defaultValue={selectedUnit}
-                  onValueChange={(value) => setSelectedUnit(value as "lbs" | "kg")}
-                  className="flex space-x-4"
-                  name="unit"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="lbs" id="lbs" />
-                    <Label htmlFor="lbs">Pounds (lbs)</Label>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>PAR-Q Program Generation Progress</DialogTitle>
+            <DialogDescription>
+              The PAR-Q program is being generated. Agent tasks are being executed in the background.
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+            <div className="space-y-4">
+              {pending && events.length > 0 && <LoaderCircle className="w-4 h-4 animate-spin" /> }
+              {/* {events.map((event, index) => ( */}
+                {events.slice().reverse().map((event, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="text-sm text-muted-foreground">
+                    {new Date(event.timestamp * 1000).toLocaleTimeString()}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="kg" id="kg" />
-                    <Label htmlFor="kg">Kilograms (kg)</Label>
-                  </div>
-                </RadioGroup>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="current-weight">Current Weight</Label>
-                    <Input
-                      id="current-weight"
-                      name="currentWeight"
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      value={weights.current}
-                      onChange={(e) => setWeights(prev => ({ ...prev, current: e.target.value }))}
-                      placeholder={`Enter weight in ${selectedUnit}`}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="target-weight">Target Weight</Label>
-                    <Input
-                      id="target-weight"
-                      name="targetWeight"
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      value={weights.target}
-                      onChange={(e) => setWeights(prev => ({ ...prev, target: e.target.value }))}
-                      placeholder={`Enter weight in ${selectedUnit}`}
-                    />
-                  </div>
+                  <div className="whitespace-pre-wrap">{event.message}</div>
+                  {index < events.length - 1 && <Separator />}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Fitness Goals */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Fitness Goals</CardTitle>
-              <CardDescription>
-                Select one or more fitness goals you'd like to achieve
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                {FITNESS_GOALS.map(({ id, label }) => (
-                  <div key={id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={id}
-                      name={id}
-                      checked={selectedGoals.includes(id)}
-                      onCheckedChange={() => handleGoalToggle(id)}
-                    />
-                    <Label htmlFor={id}>{label}</Label>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* PAR-Q Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Physical Activity Readiness Questionnaire (PAR-Q)</CardTitle>
-              <CardDescription>
-                Please answer the following questions honestly and accurately
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {showParqWarning && (
-                <Alert variant="destructive" className="mb-6">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>Medical Consultation Required</AlertTitle>
-                  <AlertDescription>
-                    You've answered YES to one or more PAR-Q questions. Please consult your physician
-                    before engaging in physical activity. Show your physician which questions you
-                    answered YES to and follow their advice on what type of activity is suitable
-                    for your current condition.
-                  </AlertDescription>
-                </Alert>
+              ))}
+              {events.length === 0 && (
+                <div className="text-center text-muted-foreground">
+                  <LoaderCircle className="w-4 h-4 animate-spin" /> Waiting for events...
+                </div>
               )}
-              <div className="space-y-6">
-                {PARQ_QUESTIONS.map(({ id, question }) => (
-                  <div key={id} className="space-y-2">
-                    <Label className="text-base">{question}</Label>
-                    <RadioGroup
-                      value={parqAnswers[id]?.toString()}
-                      onValueChange={(value) => 
-                        setParqAnswers(prev => ({
-                          ...prev,
-                          [id]: value === "true"
-                        }))
-                      }
-                      name={id}
-                      className="flex space-x-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="true" id={`${id}-yes`} />
-                        <Label htmlFor={`${id}-yes`}>Yes</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="false" id={`${id}-no`} />
-                        <Label htmlFor={`${id}-no`}>No</Label>
-                      </div>
-                    </RadioGroup>
-                    <Separator className="mt-4" />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* General and Medical History */}
-          <Card>
-            <CardHeader>
-              <CardTitle>General and Medical History</CardTitle>
-              <CardDescription>
-                Please provide information about your occupation, recreational activities, and medical history
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              <div className="space-y-4">
-                <Label htmlFor="occupation" className="text-lg font-semibold">
-                  What is your current occupation?
-                </Label>
-                <Input
-                  id="occupation"
-                  name="occupation"
-                  autoComplete="off"
-                  value={occupation}
-                  onChange={(e) => setOccupation(e.target.value)}
-                  placeholder="Enter your current occupation"
-                />
-              </div>
-              
-              {renderHistorySection("Occupational", GENERAL_HISTORY.occupational)}
-              <Separator className="my-6" />
-              
-              {renderHistorySection("Recreational", GENERAL_HISTORY.recreational)}
-              <Separator className="my-6" />
-              
-              {renderHistorySection("Medical", GENERAL_HISTORY.medical)}
-            </CardContent>
-          </Card>
-        </div>
-      </ScrollArea>
-      <div className="flex justify-end">
-        <div className="flex gap-x-2">
-          <Button
-            type="submit"
-            className="text-black"
-            name="_action"
-            value="generatePARQProgram"
-          >
-            {pending ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}{pending ? "Generating" : "Generate"} PAR-Q Program
-          </Button>
-          <Button
-            type="submit"
-            className="text-black"
-            name="_action"
-            value="updateFitnessProfile"
-          >
-            Save Fitness Profile
-          </Button>
-        </div>
-      </div>
-    </Form>
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <Button
+              className="text-black"
+              onClick={() => setIsDialogOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

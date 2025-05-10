@@ -5,6 +5,9 @@ from crewai.knowledge.source.pdf_knowledge_source import PDFKnowledgeSource
 from models.profile import Client, FitnessProfile
 from models.movement import MovementPattern, MovementPlane, BalanceType
 from core.config import settings
+from agents.listeners.custom_listener import MyCustomListener
+
+my_listener = MyCustomListener()
 
 import os
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY

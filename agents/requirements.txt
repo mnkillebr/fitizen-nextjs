@@ -2,6 +2,7 @@ fastapi[standard]
 uvicorn[standard]
 browser-use
 crewai
+crewai[tools]
 groq
 langchain-groq
 langchain-openai
