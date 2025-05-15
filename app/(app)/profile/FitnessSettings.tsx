@@ -593,8 +593,9 @@ export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof Fit
             <Button
               className="text-black"
               onClick={() => setIsDialogOpen(false)}
+              disabled={pending}
             >
-              Close
+              {pending ? <LoaderCircle className="w-4 h-4 animate-spin" /> : "Close"}
             </Button>
           </DialogFooter>
         </DialogContent>
