@@ -535,18 +535,8 @@ export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof Fit
             </Card>
           </div>
         </ScrollArea>
-        <div className="flex justify-end">
+        <div className="flex">
           <div className="flex gap-x-2">
-            <Button
-              type="submit"
-              className="text-black"
-              name="_action"
-              id="generatePARQProgram"
-              value="generatePARQProgram"
-              onClick={() => setIsDialogOpen(true)}
-            >
-              {pending ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}{pending ? "Generating" : "Generate"} PAR-Q Program
-            </Button>
             <Button
               type="submit"
               className="text-black"
@@ -555,6 +545,17 @@ export function FitnessSettings({ fitnessProfile }: { fitnessProfile: typeof Fit
               value="updateFitnessProfile"
             >
               Save Fitness Profile
+            </Button>
+            <Button
+              type="submit"
+              className="text-black"
+              name="_action"
+              id="generatePARQProgram"
+              value="generatePARQProgram"
+              onClick={() => setIsDialogOpen(true)}
+              disabled={Object.entries(fitnessProfile).length === 0}
+            >
+              {pending ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}{pending ? "Generating" : "Generate"} PAR-Q Program
             </Button>
           </div>
         </div>

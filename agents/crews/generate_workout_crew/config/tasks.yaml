@@ -1,0 +1,41 @@
+outline_workout:
+  description: >
+    Carefully analyze the {workout_input} and use the answers to provide a workout outline.
+
+    The {workout_input} specifies the location, type, focus, and time of the workout.
+
+    If the location is outdoors, we should only use bodyweight exercises in the workout.
+    If the location is home, we can safely assume that the person has access to a chair for supported exercises.
+    If the location is a gym, we can use typical gym equipment for the workout (e.g. barbell, dumbbells, kettlebells, etc.).
+
+    If the type is strength, we should include compound exercises that target the major muscle groups with rep ranges of 8-12.
+    If the type is endurance, we should include exercises that target the cardiovascular system with rep ranges of 15-20.
+    If the type is hiit, we should build the workout in circuit style, alternating between exercises done for time, with short rest periods.
+    If the type is stability, we should focus on core and breathing exercises with rep ranges of 10-15 (e.g. planks, crawls, yoga, animal flows, etc.).
+
+    If the focus is upper body, we should include exercises that target the upper body.
+    If the focus is lower body, we should include exercises that target the lower body.
+    If the focus is full body, we should include exercises that target the entire body.
+
+    Use the time to approximate the number of exercises, the duration of each exercise, and the rest time between exercises.
+
+  expected_output: >
+    A workout outline with the following structure:
+    -warmup
+    -main block
+    -cooldown
+
+    Each section should have a list of recommended {movement_patterns} to include.
+    Vary the {movement_patterns} to include different {movement_plane} or {balance_type} appropriate for the type of workout.
+
+exercise_selection:
+  description: >
+    Carefully analyze the workout_outline and use it to select the best exercises for each section.
+    Provide the rep ranges, sets, and rest times for each exercise.
+
+  expected_output: >
+    A list of exercises for each section with the following structure:
+    -exercise name
+    -rep range
+    -sets
+    -rest time

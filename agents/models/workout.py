@@ -24,5 +24,3 @@ class GenerateWorkoutInput(BaseModel):
   focus: WorkoutFocus = Field(..., description="The focus of the workout")
   time: int = Field(..., description="The time of the workout")
 
-
-  

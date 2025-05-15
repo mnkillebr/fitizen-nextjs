@@ -190,7 +190,31 @@ export async function generateWorkout(prevState: unknown, formData: FormData) {
       };
     }
 
+    const workoutFormData = new FormData()
+    workoutFormData.append("location", location)
+    workoutFormData.append("type", type)
+    workoutFormData.append("focus", focus)
+    workoutFormData.append("time", time)
     // TODO: Generate workout with workout generator crew
+    const workoutResponse = await fetch(`${process.env.API_BASE_URL}/workouts/generate_workout`, {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+      },
+      body: workoutFormData,
+    });
+
+    if (!workoutResponse.ok) {
+      const errorData = await workoutResponse.json();
+      console.error("Workout generation error:", errorData);
+      return {
+        server_error: `Failed to generate workout: ${errorData.detail || 'Unknown error'}`,
+      };
+    }
+
+    const workoutData = await workoutResponse.json();
+    console.log("Workout data:", workoutData);
+    return workoutData;
 
     // TODO: Map and save workout to database
     
