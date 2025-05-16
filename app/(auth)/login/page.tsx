@@ -6,11 +6,20 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import Form from "next/form";
 import { login, googleSignIn } from "@/app/actions/login-action";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { toast } from "sonner";
+import { LoaderCircle } from "lucide-react";
 
 export default function Login() {
-  const [state, dispatch] = useActionState(login, undefined);
+  const [state, dispatch, pending] = useActionState(login, undefined);
+
+  useEffect(() => {
+    if (state?.success) {
+      toast.success(state.success);
+    }
+  }, [state]);
+
 	return (
 		<Card className="flex text-foreground min-w-[400px] md:min-w-[500px]">
       <CardHeader>
@@ -37,7 +46,14 @@ export default function Login() {
             />
             {state?.errors?.email && <p data-testid="email-error" className="text-red-500 text-sm">{state.errors.email[0]}</p>}
           </div>
-          <Button data-testid="login-button" id="login-button" className="w-full text-foreground dark:text-background">Log In</Button>
+          <Button
+            data-testid="login-button"
+            id="login-button"
+            className="w-full text-foreground dark:text-background"
+            disabled={pending}
+          >
+            {pending ? <LoaderCircle className="w-4 h-4 animate-spin" /> : null} Log In
+          </Button>
           {state?.server_error && <p data-testid="server-error" className="text-red-500 text-sm">{state.server_error}</p>}
         </Form>
         <Separator className="my-6 dark:bg-border-muted"/>

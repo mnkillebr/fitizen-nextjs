@@ -1,16 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
-}
-
-generator drizzle {
-  provider = "drizzle-prisma-generator"
-  output   = "../db/schema.ts" // Where to put generated Drizle tables
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
 }
 
 datasource db {
@@ -99,7 +90,7 @@ model SocialLogin {
 model Subscription {
   id                String             @id @default(cuid())
   name              String
-  price             Decimal
+  price             Float
   description       String?
   userSubscriptions UserSubscription[]
 }
@@ -119,7 +110,7 @@ model Program {
   name           String
   description    String?
   isFree         Boolean          @default(false)
-  price          Decimal?
+  price          Float?
 
   youtubeLink    String?
   s3ImageKey     String?

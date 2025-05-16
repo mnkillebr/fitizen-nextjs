@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from copilotkit.integrations.fastapi import add_fastapi_endpoint
 from copilotkit import CopilotKitRemoteEndpoint, Action
 from agents.core.config import settings
-from agents.routers import programs, workouts
+from agents.routers import programs, workouts, exercises
 
 app = FastAPI()
 
@@ -34,6 +34,7 @@ add_fastapi_endpoint(app, sdk, "/copilotkit")
 
 app.include_router(programs.router)
 app.include_router(workouts.router)
+app.include_router(exercises.router)
 
 # add new route for health check
 @app.get("/health")

@@ -38,6 +38,7 @@ pdf_source = PDFKnowledgeSource(
 @CrewBase
 class GenerateWorkoutCrew:
     """
+    Generate Workout Crew
     This crew generates a workout based on the user's input.
     The user provides the location, type, focus, and time of the workout.
     The crew then generates a workout based on the user's input.

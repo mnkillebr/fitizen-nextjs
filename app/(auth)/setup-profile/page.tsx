@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Form from "next/form";
 import { registerWithEmail } from "@/app/actions/register-action";
 import { useActionState } from "react";
+import { LoaderCircle } from "lucide-react";
 
 export default function SetupProfile() {
-  const [state, dispatch] = useActionState(registerWithEmail, undefined);
+  const [state, dispatch, pending] = useActionState(registerWithEmail, undefined);
 
 	return (
     <Card className="min-w-[400px] md:min-w-[500px]">
@@ -56,7 +57,13 @@ export default function SetupProfile() {
               />
             </div>
           </fieldset>
-          <Button data-testid="signup-button" className="mx-auto w-full text-foreground dark:text-background">Sign Up</Button>
+          <Button
+            data-testid="signup-button"
+            className="mx-auto w-full text-foreground dark:text-background"
+            disabled={pending}
+          >
+            {pending ? <LoaderCircle className="w-4 h-4 animate-spin" /> : null }{pending ? "Signing up..." : "Sign Up"}
+          </Button>
           {state?.server_error && <p data-testid="server-error" className="text-red-500 text-sm">{state.server_error}</p>}
         </Form>
       </CardContent>
