@@ -519,7 +519,7 @@ const Calendar: React.FC<CalendarProps> = ({ currentTimeLineColor = 'red', submi
   };
 
   return (
-    <div className="px-2 pb-5 md:px-3 md:pb-6 h-full overflow-hidden bg-background text-foreground">
+    <div className=" h-full overflow-hidden bg-background text-foreground">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center">
           <Button onClick={navigatePrevious} className="hover:shadow-md text-foreground bg-background-muted dark:border dark:border-border-muted dark:hover:shadow-border-muted hover:text-black transition duration-100">

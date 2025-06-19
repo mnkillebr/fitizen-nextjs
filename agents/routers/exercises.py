@@ -2,6 +2,7 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Form
 from pydantic import BaseModel
 from agents.services.exercise_service import get_exercise_by_id, search_exercises
+import json
 
 router = APIRouter(
     prefix="/exercises",
@@ -14,11 +15,15 @@ async def get_exercise(exercise_id: str):
     return exercise
 
 class SearchExercisesRequest(BaseModel):
-    body: Optional[list[str]] = None
-    plane: Optional[list[str]] = None
-    pattern: Optional[list[str]] = None
+    body: Optional[str] = None
+    plane: Optional[str] = None
+    pattern: Optional[str] = None
 
 @router.post("/search")
 async def search_exercises_endpoint(data: Annotated[SearchExercisesRequest, Form()]):
-    exercises = await search_exercises(data.body, data.plane, data.pattern)
+    body_list = json.loads(data.body) if data.body else None
+    plane_list = json.loads(data.plane) if data.plane else None
+    pattern_list = json.loads(data.pattern) if data.pattern else None
+    print(f"Searching for exercises with body: {body_list}, plane: {plane_list}, pattern: {pattern_list}")
+    exercises = await search_exercises(body_list, plane_list, pattern_list)
     return exercises
