@@ -3,6 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel, EmailStr, Field
 
 from agents.models.movement import BalanceType, MovementPattern, MovementPlane
+from agents.models.workout import WorkoutOutline
 
 # Profile Analysis
 class ExercisePriorities(BaseModel):
@@ -137,3 +138,5 @@ class FitnessProgram(BaseModel):
     description: str = Field(..., description="A brief the description of the program, who it is for and its goals")
     weeks: List[ProgramWeek] = Field(..., min_length=4, max_length=4)
 
+class WeekOutline(BaseModel):
+    days: List[WorkoutOutline] = Field(..., description="A list of the workout outlines for the week")

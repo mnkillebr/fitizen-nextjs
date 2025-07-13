@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-function MultiSelect({ options, label = "option" }: { options: { label: string; value: string }[], label?: string }) {
+function MultiSelect({ options, label = "option", onSelect }: { options: { label: string; value: string }[], label?: string, onSelect: (values: string[]) => void }) {
   const [open, setOpen] = React.useState(false)
   const [values, setValues] = React.useState<string[]>([])
 
@@ -66,6 +66,7 @@ function MultiSelect({ options, label = "option" }: { options: { label: string; 
                     const newValues = values.includes(currentValue) ? values.filter((value) => value !== currentValue) : [...values, currentValue]
                     setValues(newValues)
                     setOpen(false)
+                    onSelect(newValues)
                   }}
                 >
                   <CheckIcon

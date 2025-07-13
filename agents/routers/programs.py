@@ -7,6 +7,7 @@ import json
 
 from agents.models.profile import Client, FitnessProfile
 from agents.crews.parq_program_crew.parq_program_crew import client, fitness_profile, movement_patterns, movement_plane, balance_type, parq_program_crew, my_listener
+from agents.flows.generate_program_flow.generate_program_flow import GenerateProgramFlow, test_fms
 
 router = APIRouter(
     prefix="/programs",
@@ -36,6 +37,8 @@ async def get_crew_events():
 async def getParQProgram(profileClient: Annotated[Client, Query()], profileData: Annotated[FitnessProfile, Form()]):
     start_time = time.perf_counter()
     
+    # print("profile client", profileClient.model_dump())
+    # print("profile data", profileData.model_dump())
     # Clear any previous events
     my_listener.clear_events()
     
@@ -49,7 +52,6 @@ async def getParQProgram(profileClient: Annotated[Client, Query()], profileData:
         'movement_plane': movement_plane,
         'balance_type': balance_type,
     }
-    
     # Start the crew execution
     result = await parq_program_crew.kickoff_async(
         inputs=crew_inputs
@@ -62,4 +64,26 @@ async def getParQProgram(profileClient: Annotated[Client, Query()], profileData:
         "process_time": process_time,
         # "pydantic_output": pydantic_output,
         "raw_output": raw_output,
+    }
+
+@router.get("/test_flow")
+async def test_flow(country: Annotated[str | None, Query(max_length=30)] = None):
+    """Test the flow"""
+    # Test FMS Inputs
+    fms_input = test_fms
+    start_time = time.perf_counter()
+
+    print(f"Country: {country}")
+    print(f"FMS Input: {fms_input}")
+
+    flow = GenerateProgramFlow(query=country, fms=fms_input)
+    # flow.plot()
+    result = await flow.kickoff_async()
+
+
+    process_time = time.perf_counter() - start_time
+
+    return {
+        "process_time": process_time,
+        "result": result,
     }

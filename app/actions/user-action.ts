@@ -47,9 +47,9 @@ export async function fitnessProfileActions(prevState: unknown, formData: FormDa
       const { firstName, lastName, email } = user;
 
       const programFormData = new FormData()
-      programFormData.append("height", formData.get("userHeight") as string)
-      programFormData.append("currentWeight", formData.get("currentWeight") as string)
-      programFormData.append("targetWeight", formData.get("targetWeight") as string)
+      formData.get("userHeight") && programFormData.append("height", formData.get("userHeight") as string)
+      formData.get("currentWeight") && programFormData.append("currentWeight", formData.get("currentWeight") as string)
+      formData.get("targetWeight") && programFormData.append("targetWeight", formData.get("targetWeight") as string)
       formData.get("fat-loss") && programFormData.append("goal_fatLoss", "true")
       formData.get("endurance") && programFormData.append("goal_endurance", "true")
       formData.get("build-muscle") && programFormData.append("goal_buildMuscle", "true")
@@ -93,7 +93,7 @@ export async function fitnessProfileActions(prevState: unknown, formData: FormDa
       
       const clientParams = new URLSearchParams();
       clientParams.set("name", `${firstName} ${lastName}`);
-      clientParams.set("age", "69");
+      clientParams.set("age", "43");
       clientParams.set("email", email);
       
       try {

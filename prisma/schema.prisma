@@ -38,6 +38,7 @@ model User {
   leaderboardScores     Leaderboard[]
   scheduledWorkouts     WorkoutSession[]
   scheduledAppointments Appointment[]
+  fmsScores            FMS[]
 
   role                  Role
   fitnessProfile        FitnessProfile?
@@ -507,6 +508,21 @@ model Appointment {
 enum AppointmentType {
   GOAL_SETTING
   FOLLOWUP
+}
+
+model FMS {
+  id String @id @default(cuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  deep_squat Int
+  hurdle_step Int
+  inline_lunge Int
+  shoulder_mobility Int
+  active_straight_leg_raise Int
+  trunk_stability_pushup Int
+  rotary_stability Int
+  total_score Int
+  date DateTime @default(now())
 }
 
 model Leaderboard {

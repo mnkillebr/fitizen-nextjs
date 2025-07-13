@@ -23,6 +23,7 @@ async def get_exercise_by_id(exercise_id: str) -> dict | None:
 
 
 async def search_exercises(body: list[str] = None, plane: list[str] = None, pattern: list[str] = None) -> list[ExerciseRead]:
+    # TODO: Update to include angle and balance
     """
     Search for exercises based on body focus, plane of motion, and movement patterns.
     Only includes parameters in the query if they are present and non-empty.

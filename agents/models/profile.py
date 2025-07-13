@@ -54,3 +54,53 @@ class Client(BaseModel):
     name: str = Field(..., description="The name of the client")
     email: EmailStr = Field(..., description="The email of the client")
     age: int = Field(..., description="The age of the client")
+
+class FMS(BaseModel):
+    deep_squat: int = Field(..., description="The score of the client's deep squat", gt=0, le=3)
+    hurdle_step: int = Field(..., description="The score of the client's hurdle step", gt=0, le=3)
+    inline_lunge: int = Field(..., description="The score of the client's inline lunge", gt=0, le=3)
+    shoulder_mobility: int = Field(..., description="The score of the client's shoulder mobility", gt=0, le=3)
+    active_straight_leg_raise: int = Field(..., description="The score of the client's active straight leg raise", gt=0, le=3)
+    trunk_stability_pushup: int = Field(..., description="The score of the client's trunk stability pushup", gt=0, le=3)
+    rotary_stability: int = Field(..., description="The score of the client's rotary stability", gt=0, le=3)
+    total_score: int = Field(..., description="The total score of the client's FMS", gt=0, le=21)
+
+class BodyComposition(BaseModel):
+    body_fat_percentage: float = Field(..., description="The body fat percentage of the client", gt=0, le=100)
+    body_mass_index: float = Field(..., description="The body mass index of the client", gt=0, le=50)
+    basal_metabolic_rate: float = Field(..., description="The basal metabolic rate of the client", ge=1000, le=10000)
+    body_fat_mass: float = Field(..., description="The body fat mass of the client", gt=0, le=999)
+    lean_body_mass: float = Field(..., description="The lean body mass of the client", gt=0, le=999)
+
+class Gender(str, Enum):
+    male = "male"
+    female = "female"
+
+class FlightAssessmentType(str, Enum):
+    pilot = "pilot"
+    flight_attendant = "flight_attendant"
+    ground_crew = "ground_crew"
+    air_traffic_controller = "air_traffic_controller"
+
+class Persona(BaseModel):
+    age_range: int = Field(..., description="The age range of the client", gt=0, le=100)
+    gender: Gender = Field(..., description="The gender of the client")
+    flight_assessment_type: Optional[FlightAssessmentType] = Field(
+        ...,
+        description="""
+            The personality type revealed by the flight assessment.
+            Pilots are individuals who show prowess in decision-making and problem-solving under pressure. Pilots are task-oriented, direct, and action-oriented. Pilots are the `get shit done` type.
+            Flight attendants are individuals who are outgoing, energetic, and easily connect with others. Flight attendants enjoy interacting with others and expressing emotions. Flight attendants are the `social butterfly` type.
+            Ground crew are individuals that prefer a steady pace and routine. Ground crew are natural team supporters, work well within established processes and they may need extra time to adjust to change.
+            Air traffic controllers are individuals that are detail-oriented and systematic. Air traffic controllers prefer to complete their tasks correctly the first time, and value accuracy and thoroughness.
+            These types will help you speak in a way that is appropriate for the client when selling them on the program.
+        """)
+    location: Optional[str] = Field(..., description="The location of the client")
+    occupation: Optional[str] = Field(..., description="The occupation of the client")
+    monthly_income: Optional[int] = Field(..., description="The monthly income of the client")
+    interests: Optional[List[str]] = Field(..., description="The interests of the client")
+    
+# Pilots need a program that is presented with clear directions and a clear outcome.
+# Air traffic controllers need a program that is presented with analytics, insights and metrics.
+# Flight attendants need a program that is presented with new skills to learn and improve on.
+# Ground crew needs a program that is presented with acknowledgements,incentives and rewards for consistency.

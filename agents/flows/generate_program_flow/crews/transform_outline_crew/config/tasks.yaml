@@ -1,0 +1,29 @@
+transform_outline:
+  description: >
+    Take the workout outline provided in the {workout_outline} and transform it into a workout plan.
+    The workout outline is defined as the following pydantic model:
+      class WorkoutOutline(BaseModel):
+        day: str = Field(..., description="The day that represents the outline format", choices=["A", "B", "C", "D"])
+        prep: str = Field(..., description="A list of movement preparation exercises (foam rolling, dynamic stretches, activation exercises, etc.)")
+        power: str = Field(..., description="The power exercise for the workout")
+        group_1: List[ExerciseType] = Field(..., description="The first group of movements")
+        group_2: List[ExerciseType] = Field(..., description="The second group of movements")
+        finisher: str = Field(..., description="The finisher for the workout")
+    
+    You will need to iterate through each field in the workout outline, excluding the day field and finisher field, and find an appropriate exercise or list of exercises that meet the criteria defined in each field.
+    You MUST refer to the pdf knowledge source to find exercises that meet the criteria. You are not allowed to make up your own exercises, with the exception of the foam rolling and dynamic stretches in the prep field.
+    For the activation exercises, refer to the pdf knowledge source for exercises listed under "motor control".
+    The other exception is the finisher field. The finisher should be something that triggers the anaerobic system (e.g. treadmill sprints, battle ropes, burpees, etc.) and last no longer than 2 minutes.
+    Foam rolling and dynamic stretches do not have relevant matches in the pdf knowledge source.
+    Use your reasoning when searching through the pdf knowledge source to find your matches.
+    There may be multiple exercises that meet the criteria for a given field. 
+
+  expected_output: >
+    You are to return a workout plan in the following format to match the WorkoutPlan pydantic model:
+      class WorkoutPlan(BaseModel):
+        day: str = Field(..., description="The day that represents the workout plan", choices=["A", "B", "C", "D"])
+        movement_prep: List[MovementPrep] = Field(..., description="The movement preparation for the workout")
+        power: str = Field(..., description="The power exercise used to kick off the workout. It should engage the fast-twitch muscle fibers and raise the heart rate.")
+        circuit_1: Circuit = Field(..., description="The first exercise circuit")
+        circuit_2: Circuit = Field(..., description="The second exercise circuit")
+        finisher: str = Field(..., description="The finisher for the workout ")

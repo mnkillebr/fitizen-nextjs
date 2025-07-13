@@ -1,0 +1,61 @@
+fms_analysis:
+  description: >
+    Carefully analyze the FMS scores provided in the {fms} and use the scores to provide a summary of the client's movement patterns. This summary should be concise and to the point. After the summary, provide a list of actionable insights and corrective exercises to help the client improve their movement patterns.
+
+    The FMS scores are as follows
+      -deep squat {fms.deep_squat}
+      -hurdle step {fms.hurdle_step}
+      -inline lunge {fms.inline_lunge}
+      -shoulder mobility {fms.shoulder_mobility}
+      -active straight leg raise {fms.active_straight_leg_raise}
+      -trunk stability pushup {fms.trunk_stability_pushup}
+      -rotary stability {fms.rotary_stability}
+      -total score {fms.total_score}
+    
+    An ideal athlete would have a total score of at least 14 so the athlete has a reduced risk of injury.
+    An individual with a total score of 13 or less will have a higher risk of injury.
+
+  expected_output: >
+    Provide a summary of the client's movement patterns.
+    Provide a list of actionable insights and corrective exercises to help the client improve their movement patterns.
+    The list of corrective exercises should include any combination of foam rolling, stretches, mobility drills, activation exercises, band work, etc.
+    that can help the individual improve their mind-body connection, improve mobility/flexibility, reduce pain and the risk of injury.
+
+week_outline:
+  description: >
+    Generate a week outline for the client given the fms analysis and the client's {fitness_history}.
+    The summary provided from the fms should give you insights regarding the client's movement patterns.
+    The insights from the fms and fitness history should be primarily used to select the proper movement prep, power and finisher.
+    Use proper judgement to ensure you are not selecting power and finishers that exascerbate any existing injuries or pain.
+    The movement prep should ensure that the client is prepared to do the main movements.
+
+  expected_output: >
+    Provide a week outline for the client. The week outline should contain a list of days based on the number provided in the {days} variable. Each day should be in the following format:
+      day: The day (A, B, C, D)
+      prep: A list of movement preparation exercises (foam rolling, dynamic stretches, activation exercises, etc.)
+      power: An appropriate power warmup based on the client's fitness history. This should be an explosive movement that engages the fast-twitch muscle fibers.
+      group_1: A list of strength exercises for the first group (2-4 exercises). Pair one upper body and one lower body exercise. Can include a core exercise.
+      group_2: A list of strength exercises for the second group (2-4 exercises). Pair one upper body and one lower body exercise. Can include a core exercise.
+      finisher: An appropriate finisher for the workout that raises the heart rate and engages the aerobic system.
+    
+    This format should match the WeekOutline pydantic model.
+
+group_class:
+  description: >
+    Generate a group fitness class that focuses on core stability, muscular endurance and breathwork.
+    Participants should feel like they can't laugh due to how sore there core would be after the class.
+    The class will be 45 minutes long. The class is equipped with cable machines, kettlebells, dumbbells, bands, medicine balls, barbells, turf, mats, sandbags, etc.
+    The class needs to start with a warmup, then a main circuit rotation of 6-10 exercises, and end with a finisher.
+
+    The challenge is coming up with an engaging main circuit given how the room is setup. The room layout has four general areas (cardio, barbell racks, cable machines, turf).
+    We want to start everyone with some warmup that incorporates breathing and activation.
+    The main circuit needs to have 8-10 exercises.
+    The finisher can be some form of hiit.
+
+    We have the four areas but we don't want to have the participants relying on the equipment. So effectively, the equipment is in way for the type of class we are trying to create.
+  expected_output: >
+    Provide a list of exercises for the core-focused group fitness class.
+    Break up the class into three main blocks.
+    The first block is a warmup that incorporates breathing and activation.
+    The second block is a main circuit rotation of 8-10 exercises.
+    The third block is a finisher that is some form of hiit.

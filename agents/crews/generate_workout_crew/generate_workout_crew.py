@@ -1,4 +1,3 @@
-# import yaml
 from crewai import Agent, Task, Crew, LLM, Process
 from crewai.knowledge.source.pdf_knowledge_source import PDFKnowledgeSource
 from crewai.project import CrewBase, agent, task, crew, before_kickoff, after_kickoff

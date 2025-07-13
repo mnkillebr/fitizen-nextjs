@@ -773,6 +773,28 @@ export const Appointment = pgTable('Appointment', {
 		.onUpdate('cascade')
 }));
 
+export const FMS = pgTable('FMS', {
+	id: text('id').notNull().primaryKey().default(sql`cuid(1)`),
+	userId: text('userId').notNull(),
+	deep_squat: integer('deep_squat').notNull(),
+	hurdle_step: integer('hurdle_step').notNull(),
+	inline_lunge: integer('inline_lunge').notNull(),
+	shoulder_mobility: integer('shoulder_mobility').notNull(),
+	active_straight_leg_raise: integer('active_straight_leg_raise').notNull(),
+	trunk_stability_pushup: integer('trunk_stability_pushup').notNull(),
+	rotary_stability: integer('rotary_stability').notNull(),
+	total_score: integer('total_score').notNull(),
+	date: timestamp('date', { precision: 3 }).notNull().defaultNow()
+}, (FMS) => ({
+	'FMS_user_fkey': foreignKey({
+		name: 'FMS_user_fkey',
+		columns: [FMS.userId],
+		foreignColumns: [User.id]
+	})
+		.onDelete('cascade')
+		.onUpdate('cascade')
+}));
+
 export const Leaderboard = pgTable('Leaderboard', {
 	id: serial('id').notNull().primaryKey(),
 	userId: text('userId').notNull(),
@@ -823,6 +845,9 @@ export const UserRelations = relations(User, ({ many }) => ({
 	}),
 	scheduledAppointments: many(Appointment, {
 		relationName: 'AppointmentToUser'
+	}),
+	fmsScores: many(FMS, {
+		relationName: 'FMSToUser'
 	}),
 	fitnessProfile: many(FitnessProfile, {
 		relationName: 'FitnessProfileToUser'
@@ -1277,6 +1302,14 @@ export const AppointmentRelations = relations(Appointment, ({ one }) => ({
 		relationName: 'AppointmentToCoach',
 		fields: [Appointment.coachId],
 		references: [Coach.id]
+	})
+}));
+
+export const FMSRelations = relations(FMS, ({ one }) => ({
+	user: one(User, {
+		relationName: 'FMSToUser',
+		fields: [FMS.userId],
+		references: [User.id]
 	})
 }));
 
