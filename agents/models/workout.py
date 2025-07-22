@@ -57,3 +57,6 @@ class WorkoutPlan(BaseModel):
     circuit_1: Circuit = Field(..., description="The first exercise circuit")
     circuit_2: Circuit = Field(..., description="The second exercise circuit")
     finisher: str = Field(..., description="The finisher for the workout")
+
+class WorkoutProgressions(BaseModel):
+    progressions: List[WorkoutPlan] = Field(..., description="The list of progressed workout plans")

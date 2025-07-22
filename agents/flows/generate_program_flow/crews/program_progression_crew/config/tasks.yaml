@@ -1,0 +1,44 @@
+add_progressions:
+  description: >
+    Take the workout plan provided in the {workout_plan} and add progressions to the power field and each exercise in the circuit_1 and circuit_2 fields.
+    There are several methods for adding progression to any exercise including:
+      - Intensity -- increasing the amount of weight or resistance (most common)
+      - Volume -- increasing the number of reps or sets
+      - Tempo -- increasing the time under tension (e.g. pause reps, fast concentric, slow eccentric, etc.)
+      - Balance -- changing the balance of the exercise (e.g. unilateral is more challenging than bilateral)
+      - Load Position -- changing the position of the load (e.g. overhead, front rack, back rack, assymetrical, etc.)
+
+    Considering that the exercises presented in the workout plan are taken from the pdf knowledge source, you can also refer to the pdf knowledge source to find the most appropriate progression for each exercise.
+    On the pdf knowledge source, exercises are grouped in the following categories:
+      - Power
+      - Ladder Drills
+      - Motor Control
+      - Anti-Extension/Rotation
+      - Anti-Lateral Flexion
+      - Anti Rotation
+      - Anti Extension
+      - Horizontal Press
+      - Vertical Press
+      - Horizontal Pull
+      - Vertical Pull
+      - Knee-Dominant
+      - Hip-Dominant
+
+    In each category, you have multiple groups that are outlined to group similar patterns. In general, these groupings list the least difficult version first and each subsequent variant is considered a progression.
+    In general, I would recommend progressing volume first, then intensity.
+    An easy way to progress volume is to increase the reps by 2 each week for every exercise. However, no exercise should exceed 14 reps. Once an exercise can be done for 14 reps, you can then progress the intensity by increasing the weight by 5% and dropping the reps back down to 8.
+    Once the client reaches a plateau in resistance, you can then progress using the next progression in the pdf knowledge source for that exercise.
+
+  expected_output: >
+    You are to return a list of progressed workout plans. The list should be length of the {remaining_weeks}. Each weeks workout plan should be a progression of the previous week. 
+    The items in the list should be in the following format to match the WorkoutPlan pydantic model:
+      class WorkoutPlan(BaseModel):
+        day: str = Field(..., description="The day that represents the workout plan", choices=["A", "B", "C", "D"])
+        movement_prep: List[MovementPrep] = Field(..., description="The movement preparation for the workout")
+        power: str = Field(..., description="The power exercise used to kick off the workout. It should engage the fast-twitch muscle fibers and raise the heart rate.")
+        circuit_1: Circuit = Field(..., description="The first exercise circuit")
+        circuit_2: Circuit = Field(..., description="The second exercise circuit")
+        finisher: str = Field(..., description="The finisher for the workout ")
+
+    Keep in mind that the only fields that need progression are the power field and each exercise in the circuit_1 and circuit_2 fields.
+    The movement_prep and finisher fields should remain the same.

@@ -38,7 +38,7 @@ week_outline:
       group_2: A list of strength exercises for the second group (2-4 exercises). Pair one upper body and one lower body exercise. Can include a core exercise.
       finisher: An appropriate finisher for the workout that raises the heart rate and engages the aerobic system.
     
-    This format should match the WeekOutline pydantic model.
+    This format should match the WeekOutline pydantic model. You must output a list where the length of the list is equal to the {days} variable.
 
 group_class:
   description: >

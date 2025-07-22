@@ -3,7 +3,7 @@ from crewai import Agent, Task, Crew, LLM
 from crewai.knowledge.source.pdf_knowledge_source import PDFKnowledgeSource
 from core.config import settings
 from agents.listeners.custom_listener import MyCustomListener
-from agents.models.workout import WorkoutPlan
+from agents.models.workout import WorkoutProgressions
 
 my_listener = MyCustomListener()
 
@@ -15,8 +15,8 @@ llama8b_llm = LLM(model="groq/llama-3.1-8b-instant", api_key=settings.GROQ_API_K
 
 # Define file paths for YAML configurations
 files = {
-  'agents': 'flows/generate_program_flow/crews/transform_outline_crew/config/agents.yaml',
-  'tasks': 'flows/generate_program_flow/crews/transform_outline_crew/config/tasks.yaml'
+  'agents': 'flows/generate_program_flow/crews/program_progression_crew/config/agents.yaml',
+  'tasks': 'flows/generate_program_flow/crews/program_progression_crew/config/tasks.yaml'
 }
 
 # Load configurations from YAML files
@@ -37,8 +37,8 @@ pdf_source = PDFKnowledgeSource(
 )
 
 # Creating Agents
-transform_outline_agent = Agent(
-  config=agents_config['transform_outline_agent'],
+workout_progression_agent = Agent(
+  config=agents_config['workout_progression_agent'],
   # llm=llama8b_llm,
   llm="gpt-4o",
   knowledge_sources=[pdf_source],
@@ -46,19 +46,19 @@ transform_outline_agent = Agent(
 )
 
 # Creating Tasks
-transform_outline_task = Task(
-  config=tasks_config['transform_outline'],
-  agent=transform_outline_agent,
-  output_pydantic=WorkoutPlan
+workout_progression_task = Task(
+  config=tasks_config['add_progressions'],
+  agent=workout_progression_agent,
+  output_pydantic=WorkoutProgressions
 )
 
 # Creating Crew
-transform_outline_crew = Crew(
+program_progression_crew = Crew(
   agents=[
-    transform_outline_agent,
+    workout_progression_agent,
   ],
   tasks=[
-    transform_outline_task,
+    workout_progression_task,
   ],
   verbose=True,
 )

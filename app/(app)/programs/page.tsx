@@ -11,9 +11,9 @@ export default async function ProgramsPage({
   const query = (await searchParams).q as string;
   const country = (await searchParams).country as string;
   const programs = await getAllPrograms(query ?? "");
-  const testFlow = await fetch(`${process.env.API_BASE_URL}/programs/test_flow${country ? `?country=${country}` : ""}`);
-  const testFlowData = await testFlow.json();
-  console.log(testFlowData);
+  // const testFlow = await fetch(`${process.env.API_BASE_URL}/programs/test_flow/excel`);
+  // console.log(testFlow);
+  // console.log(testFlowData);
   // console.log(programs);
   // Mock data for demonstration
   // const mockPrograms = Array.from({ length: 20 }, (_, i) => ({

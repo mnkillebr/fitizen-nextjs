@@ -103,4 +103,4 @@ class Persona(BaseModel):
 # Pilots need a program that is presented with clear directions and a clear outcome.
 # Air traffic controllers need a program that is presented with analytics, insights and metrics.
 # Flight attendants need a program that is presented with new skills to learn and improve on.
-# Ground crew needs a program that is presented with acknowledgements,incentives and rewards for consistency.
+# Ground crew needs a program that is presented with acknowledgements, incentives and rewards for consistency.
