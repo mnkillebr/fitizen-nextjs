@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     await verifySession();
     
     // Construct the URL for the agents server
-    const url = `${process.env.API_BASE_URL}/programs/test_flow/excel`;
+    const url = `${process.env.API_BASE_URL}/programs/program_flow/excel`;
     
     // Make the request to the agents server
     const response = await fetch(url, {

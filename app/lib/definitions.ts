@@ -159,3 +159,14 @@ export const generateWorkoutSchema = z.object({
   focus: z.string(),
   time: z.string(),
 })
+
+export const generateProgramSchema = z.object({
+  deepSquat: z.string(),
+  hurdleStep: z.string(),
+  inlineLunge: z.string(),
+  shoulderMobility: z.string(),
+  activeStraightLegRaise: z.string(),
+  trunkStabilityPushUp: z.string(),
+  rotaryStability: z.string(),
+  coachNotes: z.string(),
+})

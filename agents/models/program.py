@@ -139,4 +139,15 @@ class FitnessProgram(BaseModel):
     weeks: List[ProgramWeek] = Field(..., min_length=4, max_length=4)
 
 class WeekOutline(BaseModel):
+    rationale: str = Field(..., description="A brief summary of the rationale for the week outline based on the client's fitness history")
     days: List[WorkoutOutline] = Field(..., description="A list of the workout outlines for the week")
+
+class GenerateProgramInput(BaseModel):
+    deepSquat: int = Field(..., description="The client's deep squat score")
+    hurdleStep: int = Field(..., description="The client's hurdle step score")
+    inlineLunge: int = Field(..., description="The client's inline lunge score")
+    shoulderMobility: int = Field(..., description="The client's shoulder mobility score")
+    activeStraightLegRaise: int = Field(..., description="The client's active straight leg raise score")
+    trunkStabilityPushUp: int = Field(..., description="The client's trunk stability push-up score")
+    rotaryStability: int = Field(..., description="The client's rotary stability score")
+    coachNotes: str = Field(..., description="The coach's notes for the program")

@@ -9,12 +9,7 @@ export default async function ProgramsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const query = (await searchParams).q as string;
-  const country = (await searchParams).country as string;
   const programs = await getAllPrograms(query ?? "");
-  // const testFlow = await fetch(`${process.env.API_BASE_URL}/programs/test_flow/excel`);
-  // console.log(testFlow);
-  // console.log(testFlowData);
-  // console.log(programs);
   // Mock data for demonstration
   // const mockPrograms = Array.from({ length: 20 }, (_, i) => ({
   //   id: i + 1,

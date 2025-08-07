@@ -1,6 +1,6 @@
 "use server";
 
-import { programLogSchema } from "@/app/lib/definitions";
+import { generateProgramSchema, programLogSchema } from "@/app/lib/definitions";
 import { redirect } from "next/navigation";
 import { saveUserProgramLog } from "@/models/program.server";
 import { verifySession } from "@/app/lib/dal";
@@ -193,4 +193,78 @@ export async function createProgramLog(prevState: unknown, formData: FormData) {
     };
   }
   redirect(`/programs/${programId}`);
+}
+
+export async function generateProgram(prevState: unknown, formData: FormData) {
+  const validatedFields = generateProgramSchema.safeParse(Object.fromEntries(formData));
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  const { deepSquat, hurdleStep, inlineLunge, shoulderMobility, activeStraightLegRaise, trunkStabilityPushUp, rotaryStability, coachNotes } = validatedFields.data;
+
+  try {
+    const { userId } = await verifySession();
+    if (!userId) {
+      return {
+        server_error: "User not authenticated",
+      };
+    }
+    const programFormData = new FormData()
+    programFormData.append("deepSquat", deepSquat)
+    programFormData.append("hurdleStep", hurdleStep)
+    programFormData.append("inlineLunge", inlineLunge)
+    programFormData.append("shoulderMobility", shoulderMobility)
+    programFormData.append("activeStraightLegRaise", activeStraightLegRaise)
+    programFormData.append("trunkStabilityPushUp", trunkStabilityPushUp)
+    programFormData.append("rotaryStability", rotaryStability)
+    programFormData.append("coachNotes", coachNotes)
+    // Generate workout with workout generator crew
+    const programResponse = await fetch(`${process.env.API_BASE_URL}/programs/program_flow/excel`, {
+      method: "POST",
+      headers: {
+        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      },
+      body: programFormData,
+    });
+
+    if (!programResponse.ok) {
+      const errorData = await programResponse.text();
+      console.error("Program generation error:", errorData);
+      return {
+        server_error: `Failed to generate program: ${errorData || 'Unknown error'}`,
+      };
+    }
+
+    // Get the Excel file as a blob
+    const excelBlob = await programResponse.blob();
+    
+    // Get filename from response headers
+    const contentDisposition = programResponse.headers.get('content-disposition');
+    let filename = 'fitness_program.xlsx';
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      if (filenameMatch) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    // Convert blob to base64 for transfer
+    const arrayBuffer = await excelBlob.arrayBuffer();
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+    return {
+      success: true,
+      filename,
+      data: base64,
+      contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    };
+  } catch (err) {
+    console.error("Program generation error:", err);
+    return {
+      server_error: "An unexpected error occurred. Please try again later.",
+    };
+  }
 }

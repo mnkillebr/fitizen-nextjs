@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from crewai.utilities.events.crew_events import CrewKickoffStartedEvent, CrewKickoffCompletedEvent
 from crewai.utilities.events.agent_events import AgentExecutionCompletedEvent, AgentExecutionStartedEvent
 from crewai.utilities.events.task_events import TaskCompletedEvent, TaskStartedEvent
+from crewai.utilities.events.flow_events import FlowStartedEvent, FlowFinishedEvent, MethodExecutionStartedEvent, MethodExecutionFinishedEvent
 from crewai.utilities.events.base_event_listener import BaseEventListener
 from queue import Queue
 from typing import Dict, Any
@@ -35,6 +36,15 @@ class MyCustomListener(BaseEventListener):
                 "timestamp": time.time()
             })
 
+
+        @crewai_event_bus.on(AgentExecutionStartedEvent)
+        def on_agent_execution_started(source, event):
+            self.event_queue.put({
+                "type": "agent_started",
+                "agent_role": event.agent.role,
+                "timestamp": time.time()
+            })
+
         @crewai_event_bus.on(AgentExecutionCompletedEvent)
         def on_agent_execution_completed(source, event):
             self.event_queue.put({
@@ -43,6 +53,43 @@ class MyCustomListener(BaseEventListener):
                 "output": event.output,
                 "timestamp": time.time()
             })
+
+        @crewai_event_bus.on(FlowStartedEvent)
+        def on_flow_started(source, event):
+            self.event_queue.put({
+                "type": "flow_started",
+                "flow_name": event.flow_name,
+                "timestamp": time.time()
+            })
+
+        @crewai_event_bus.on(FlowFinishedEvent)
+        def on_flow_finished(source, event):
+            self.event_queue.put({
+                "type": "flow_finished",
+                "flow_name": event.flow_name,
+                "output": event.result,
+                "timestamp": time.time()
+            })
+
+        @crewai_event_bus.on(MethodExecutionStartedEvent)
+        def on_method_execution_started(source, event):
+            self.event_queue.put({
+                "type": "method_started",
+                "flow_name": event.flow_name,
+                "method_name": event.method_name,
+                "timestamp": time.time()
+            })
+
+        @crewai_event_bus.on(MethodExecutionFinishedEvent)
+        def on_method_execution_finished(source, event):
+            self.event_queue.put({
+                "type": "method_finished",
+                "flow_name": event.flow_name,
+                "method_name": event.method_name,
+                "output": event.result,
+                "timestamp": time.time()
+            })
+
 
     def get_event(self):
         """Get the next event from the queue if available"""

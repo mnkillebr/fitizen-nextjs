@@ -11,28 +11,33 @@ import os
 
 from agents.models.profile import Client, FitnessProfile
 from agents.crews.parq_program_crew.parq_program_crew import client, fitness_profile, movement_patterns, movement_plane, balance_type, parq_program_crew, my_listener
-from agents.flows.generate_program_flow.generate_program_flow import GenerateProgramFlow, test_fms
+from agents.flows.generate_program_flow.generate_program_flow import GenerateProgramFlow, test_fms, program_flow_listener
+from agents.models.program import GenerateProgramInput
 
 router = APIRouter(
     prefix="/programs",
     tags=["programs"]
 )
 
-def convert_program_to_excel(program_data):
+def convert_program_to_excel(program_data: dict):
     """
-    Convert program data to Excel format with multiple sheets for each week
+    Convert program data to Excel format matching the workout template structure
     """
     # Create a BytesIO object to store the Excel file
     excel_buffer = io.BytesIO()
+
+    program_summary = program_data['program_summary']
+    full_program = program_data['full_program']
     
     with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
         # Create summary sheet
         summary_rows = []
         summary_rows.append(['FITNESS PROGRAM SUMMARY'])
+        summary_rows.append([program_summary])
         summary_rows.append([])
         summary_rows.append(['Week', 'Days', 'Focus Areas'])
         
-        for week_key, week_data in program_data.items():
+        for week_key, week_data in full_program.items():
             week_name = week_key.replace('week', 'Week ')
             days = len(week_data)
             focus_areas = []
@@ -72,63 +77,71 @@ def convert_program_to_excel(program_data):
             summary_worksheet.column_dimensions[column_letter].width = adjusted_width
         
         # Process each week
-        for week_key, week_data in program_data.items():
+        for week_key, week_data in full_program.items():
             week_name = week_key.replace('week', 'Week ')
             
-            # Create a list to store all rows for this week
-            week_rows = []
-            
             # Process each day in the week
-            for day_data in week_data:
+            for day_idx, day_data in enumerate(week_data):
                 # Convert Pydantic model to dict if needed
                 if hasattr(day_data, 'model_dump'):
                     day_data = day_data.model_dump()
                 
                 day_name = day_data.get('day', 'Unknown Day')
+                sheet_name = f"{week_name} - Day {day_name}"
                 
-                # Add day header
-                week_rows.append([f"=== {day_name} ==="])
-                week_rows.append([])
+                # Create the workout template structure
+                workout_rows = []
                 
-                # Movement Prep section
+                # Header section
+                workout_rows.append(['Date:', '', '', 'Routine:', f'Day {day_name}', ''])
+                # workout_rows.append([])  # Empty row
+                
+                # Correctives/Movement Prep section
+                workout_rows.append(['Correctives/Movement Prep', '', '','Notes', '', ''])
                 movement_prep = day_data.get('movement_prep', [])
                 if movement_prep:
-                    week_rows.append(['Movement Prep'])
                     for prep in movement_prep:
                         # Convert Pydantic model to dict if needed
                         if hasattr(prep, 'model_dump'):
                             prep = prep.model_dump()
                         
-                        week_rows.append(['', prep.get('name', ''), prep.get('description', '')])
-                        
-                        # Add foam rolling exercises
+                        # Add foam rolling
                         foam_rolling = prep.get('foam_rolling', [])
                         if foam_rolling:
-                            week_rows.append(['', '', 'Foam Rolling:'])
-                            for exercise in foam_rolling:
-                                week_rows.append(['', '', f'  • {exercise}'])
+                            workout_rows.append(['foam roll', ', '.join(foam_rolling), '', '', '', ''])
                         
                         # Add dynamic stretches
                         dynamic_stretches = prep.get('dynamic_stretches', [])
                         if dynamic_stretches:
-                            week_rows.append(['', '', 'Dynamic Stretches:'])
-                            for exercise in dynamic_stretches:
-                                week_rows.append(['', '', f'  • {exercise}'])
+                            workout_rows.append(['dynamic stretches', ', '.join(dynamic_stretches), '', '', '', ''])
                         
                         # Add activation exercises
                         activation_exercises = prep.get('activation_exercises', [])
                         if activation_exercises:
-                            week_rows.append(['', '', 'Activation Exercises:'])
-                            for exercise in activation_exercises:
-                                week_rows.append(['', '', f'  • {exercise}'])
-                    
-                    week_rows.append([])
+                            workout_rows.append(['activation', ', '.join(activation_exercises), '', '', '', ''])
+                else:
+                    # Add placeholder rows
+                    for _ in range(3):
+                        workout_rows.append(['', '', '', '', '', ''])
                 
-                # Power section
+                # workout_rows.append([])  # Empty row
+                
+                # Power/Speed/Agility Training section
+                workout_rows.append(['Power/Speed/Agility Training', '', 'Notes', 'Sets/Reps/Time', 'Load', 'Rest'])
                 power = day_data.get('power', '')
                 if power:
-                    week_rows.append(['Power', power])
-                    week_rows.append([])
+                    workout_rows.append([power, '', '', '', '', ''])
+                else:
+                    workout_rows.append(['', '', '', '', '', ''])
+                
+                # Add more empty rows for power section
+                for _ in range(3):
+                    workout_rows.append(['', '', '', '', '', ''])
+                
+                # workout_rows.append([])  # Empty row
+                
+                # Resistance Training section
+                workout_rows.append(['Resistance Training', '', 'Notes', 'Sets/Reps/Time', 'Load', 'Rest'])
                 
                 # Circuit 1
                 circuit_1 = day_data.get('circuit_1', {})
@@ -137,16 +150,20 @@ def convert_program_to_excel(program_data):
                     if hasattr(circuit_1, 'model_dump'):
                         circuit_1 = circuit_1.model_dump()
                     
-                    week_rows.append(['Circuit 1'])
                     exercises = circuit_1.get('exercises', [])
                     for exercise in exercises:
                         # Convert Pydantic model to dict if needed
                         if hasattr(exercise, 'model_dump'):
                             exercise = exercise.model_dump()
                         
-                        week_rows.append(['', exercise.get('name', ''), f"{exercise.get('reps', '')} reps", f"RPE {exercise.get('rpe', '')}"])
-                    week_rows.append(['', f"Rounds: {circuit_1.get('rounds', '')}", f"Rest: {circuit_1.get('rest', '')} seconds"])
-                    week_rows.append([])
+                        workout_rows.append([
+                            exercise.get('name', ''),
+                            '',
+                            f"Circuit 1 - RPE {exercise.get('rpe', '')}",
+                            f"{circuit_1.get('rounds', '')} rounds x {exercise.get('reps', '')} reps",
+                            '',
+                            f"{circuit_1.get('rest', '')}s rest"
+                        ])
                 
                 # Circuit 2
                 circuit_2 = day_data.get('circuit_2', {})
@@ -155,35 +172,94 @@ def convert_program_to_excel(program_data):
                     if hasattr(circuit_2, 'model_dump'):
                         circuit_2 = circuit_2.model_dump()
                     
-                    week_rows.append(['Circuit 2'])
                     exercises = circuit_2.get('exercises', [])
                     for exercise in exercises:
                         # Convert Pydantic model to dict if needed
                         if hasattr(exercise, 'model_dump'):
                             exercise = exercise.model_dump()
                         
-                        week_rows.append(['', exercise.get('name', ''), f"{exercise.get('reps', '')} reps", f"RPE {exercise.get('rpe', '')}"])
-                    week_rows.append(['', f"Rounds: {circuit_2.get('rounds', '')}", f"Rest: {circuit_2.get('rest', '')} seconds"])
-                    week_rows.append([])
+                        workout_rows.append([
+                            exercise.get('name', ''),
+                            '',
+                            f"Circuit 2 - RPE {exercise.get('rpe', '')}",
+                            f"{circuit_2.get('rounds', '')} rounds x {exercise.get('reps', '')} reps",
+                            '',
+                            f"{circuit_2.get('rest', '')}s rest"
+                        ])
                 
-                # Finisher
+                # Add more empty rows for resistance training
+                resistance_exercises = [row for row in workout_rows if len(row) > 0 and row[0] and 'Resistance Training' not in row[0] and 'Notes' not in row[0] and 'Correctives' not in row[0] and 'Power' not in row[0] and 'Energy' not in row[0]]
+                remaining_rows = 10 - len(resistance_exercises)
+                for _ in range(max(0, remaining_rows)):
+                    workout_rows.append(['', '', '', '', '', ''])
+                
+                # workout_rows.append([])  # Empty row
+                
+                # Energy System Development section
+                workout_rows.append(['Energy System Development', '','Notes', 'Volume/Intensity/Rest', '', ''])
                 finisher = day_data.get('finisher', '')
                 if finisher:
-                    week_rows.append(['Finisher', finisher])
-                    week_rows.append([])
+                    workout_rows.append([finisher, '', '', '', '', ''])
+                else:
+                    workout_rows.append(['', '', '', '', '', ''])
                 
-                # Add spacing between days
-                week_rows.append([])
-                week_rows.append([])
-            
-            # Create DataFrame and write to Excel
-            if week_rows:
-                df = pd.DataFrame(week_rows)
-                df.to_excel(writer, sheet_name=week_name, index=False, header=False)
+                # Add more empty rows for energy system development
+                for _ in range(2):
+                    workout_rows.append(['', '', '', '', '', ''])
+                
+                # Create DataFrame and write to Excel
+                df = pd.DataFrame(workout_rows)
+                df.to_excel(writer, sheet_name=sheet_name, index=False, header=False)
                 
                 # Get the workbook and worksheet for formatting
                 workbook = writer.book
-                worksheet = writer.sheets[week_name]
+                worksheet = writer.sheets[sheet_name]
+                
+                # Apply formatting to match the template
+                from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
+                from openpyxl.utils import get_column_letter
+                
+                # Define styles
+                header_font = Font(bold=True)
+                header_fill = PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
+                border = Border(
+                    left=Side(style='thin'),
+                    right=Side(style='thin'),
+                    top=Side(style='thin'),
+                    bottom=Side(style='thin')
+                )
+                thick_border = Border(
+                    left=Side(style='thick'),
+                    right=Side(style='thick'),
+                    top=Side(style='thick'),
+                    bottom=Side(style='thick')
+                )
+                center_alignment = Alignment(horizontal='center', vertical='center')
+                
+                # Apply formatting to cells
+                for row_idx, row in enumerate(workout_rows, 1):
+                    for col_idx, cell_value in enumerate(row, 1):
+                        cell = worksheet.cell(row=row_idx, column=col_idx, value=cell_value)
+                        cell.border = border
+                        
+                        # Apply header formatting to section headers
+                        if cell_value in ['Correctives/Movement Prep', 'Power/Speed/Agility Training', 'Resistance Training', 'Energy System Development']:
+                            cell.font = header_font
+                            cell.fill = header_fill
+                            cell.alignment = center_alignment
+                        
+                        # Apply header formatting to column headers
+                        elif cell_value in ['Notes', 'Sets/Reps/Time', 'Load', 'Rest', 'Volume/Intensity/Rest']:
+                            cell.font = header_font
+                            cell.fill = header_fill
+                            cell.alignment = center_alignment
+                
+                # Apply cell merging after all values are set
+                for row_idx, row in enumerate(workout_rows, 1):
+                    for col_idx, cell_value in enumerate(row, 1):
+                        # Merge cells for section headers
+                        if cell_value in ['Correctives/Movement Prep', 'Power/Speed/Agility Training', 'Resistance Training', 'Energy System Development', 'Volume/Intensity/Rest']:
+                            worksheet.merge_cells(f'{get_column_letter(col_idx)}{row_idx}:{get_column_letter(col_idx+1)}{row_idx}')
                 
                 # Auto-adjust column widths
                 for column in worksheet.columns:
@@ -195,14 +271,14 @@ def convert_program_to_excel(program_data):
                                 max_length = len(str(cell.value))
                         except:
                             pass
-                    adjusted_width = min(max_length + 2, 50)  # Cap at 50 characters
+                    adjusted_width = min(max_length + 2, 30)  # Cap at 30 characters
                     worksheet.column_dimensions[column_letter].width = adjusted_width
     
     # Reset buffer position
     excel_buffer.seek(0)
     return excel_buffer
 
-async def event_generator():
+async def parq_program_event_generator():
     """Generate SSE events from the listener queue"""
     while True:
         event = my_listener.get_event()
@@ -217,7 +293,7 @@ async def event_generator():
 async def get_crew_events():
     """SSE endpoint for getting crew execution events"""
     return StreamingResponse(
-        event_generator(),
+        parq_program_event_generator(),
         media_type="text/event-stream"
     )
 
@@ -254,17 +330,53 @@ async def getParQProgram(profileClient: Annotated[Client, Query()], profileData:
         "raw_output": raw_output,
     }
 
-@router.get("/test_flow")
-async def test_flow(country: Annotated[str | None, Query(max_length=30)] = None, format: Annotated[str | None, Query()] = "json"):
-    """Test the flow and return either JSON or Excel file"""
-    # Test FMS Inputs
-    fms_input = test_fms
-    start_time = time.perf_counter()
+async def program_flow_event_generator():
+    """Generate SSE events from the listener queue"""
+    while True:
+        event = program_flow_listener.get_event()
+        if event:
+            if event["type"] == "flow_finished":
+                yield f"data: {json.dumps(event)}\n\n"
+                break
+            elif event["type"] == "method_finished":
+                yield f"data: {json.dumps(event)}\n\n"
+                break
+            yield f"data: {json.dumps(event)}\n\n"
+        await asyncio.sleep(0.1)
 
-    print(f"Country: {country}")
+@router.get("/program_flow/events")
+async def get_crew_events():
+    """SSE endpoint for getting crew execution events"""
+    return StreamingResponse(
+        program_flow_event_generator(),
+        media_type="text/event-stream"
+    )
+
+@router.post("/program_flow")
+async def program_flow(programInput: Annotated[GenerateProgramInput, Form()], format: Annotated[str | None, Query()] = "json"):
+    """Test the flow and return either JSON or Excel file"""
+    start_time = time.perf_counter()
+    # Test FMS Inputs
+    # Clear any previous events
+    program_flow_listener.clear_events()
+
+    program_input = programInput.model_dump()
+    # fms_input = test_fms
+    fms_input = {
+        'deep_squat': program_input['deepSquat'],
+        'hurdle_step': program_input['hurdleStep'],
+        'inline_lunge': program_input['inlineLunge'],
+        'shoulder_mobility': program_input['shoulderMobility'],
+        'active_straight_leg_raise': program_input['activeStraightLegRaise'],
+        'trunk_stability_pushup': program_input['trunkStabilityPushUp'],
+        'rotary_stability': program_input['rotaryStability'],
+        'total_score': program_input['deepSquat'] + program_input['hurdleStep'] + program_input['inlineLunge'] + program_input['shoulderMobility'] + program_input['activeStraightLegRaise'] + program_input['trunkStabilityPushUp'] + program_input['rotaryStability']
+    }
+    coach_notes = program_input['coachNotes']
+
     print(f"FMS Input: {fms_input}")
 
-    flow = GenerateProgramFlow(query=country, fms=fms_input)
+    flow = GenerateProgramFlow(fms=fms_input, coach_notes=coach_notes)
     # flow.plot()
     result = await flow.kickoff_async()
 
@@ -290,24 +402,38 @@ async def test_flow(country: Annotated[str | None, Query(max_length=30)] = None,
         # Return the Excel file
         return FileResponse(
             path=tmp_file_path,
-            filename=f"fitness_program_{country or 'default'}.xlsx",
+            filename=f"fitness_program_default.xlsx",
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     
     else:
         return {"error": "Invalid format. Use 'json' or 'excel'"}
 
-@router.get("/test_flow/excel")
-async def test_flow_excel(country: Annotated[str | None, Query(max_length=30)] = None):
+@router.post("/program_flow/excel")
+async def program_flow_excel(programInput: Annotated[GenerateProgramInput, Form()]):
     """Test the flow and return Excel file directly"""
-    # Test FMS Inputs
-    fms_input = test_fms
     start_time = time.perf_counter()
+    # Clear any previous events
+    program_flow_listener.clear_events()
 
-    print(f"Country: {country}")
+    # Test FMS Inputs
+    program_input = programInput.model_dump()
+    # fms_input = test_fms
+    fms_input = {
+        'deep_squat': program_input['deepSquat'],
+        'hurdle_step': program_input['hurdleStep'],
+        'inline_lunge': program_input['inlineLunge'],
+        'shoulder_mobility': program_input['shoulderMobility'],
+        'active_straight_leg_raise': program_input['activeStraightLegRaise'],
+        'trunk_stability_pushup': program_input['trunkStabilityPushUp'],
+        'rotary_stability': program_input['rotaryStability'],
+        'total_score': program_input['deepSquat'] + program_input['hurdleStep'] + program_input['inlineLunge'] + program_input['shoulderMobility'] + program_input['activeStraightLegRaise'] + program_input['trunkStabilityPushUp'] + program_input['rotaryStability']
+    }
+    coach_notes = program_input['coachNotes']
+
     print(f"FMS Input: {fms_input}")
 
-    flow = GenerateProgramFlow(query=country, fms=fms_input)
+    flow = GenerateProgramFlow(fms=fms_input, coach_notes=coach_notes)
     # flow.plot()
     result = await flow.kickoff_async()
 
@@ -324,6 +450,6 @@ async def test_flow_excel(country: Annotated[str | None, Query(max_length=30)] =
     # Return the Excel file
     return FileResponse(
         path=tmp_file_path,
-        filename=f"fitness_program_{country or 'default'}.xlsx",
+        filename=f"fitness_program_default.xlsx",
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )

@@ -5,7 +5,7 @@ from core.config import settings
 from agents.listeners.custom_listener import MyCustomListener
 from agents.models.workout import WorkoutProgressions
 
-my_listener = MyCustomListener()
+program_progression_listener = MyCustomListener()
 
 import os
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY

@@ -12,17 +12,23 @@ from agents.flows.generate_program_flow.crews.program_progression_crew.program_p
 from agents.models.program import WeekOutline
 from agents.models.workout import WorkoutPlan
 
+from agents.listeners.custom_listener import MyCustomListener
+
+program_flow_listener = MyCustomListener()
+
 class ProgramState(BaseModel):
     fms_analysis: str = ""
     week_outline: WeekOutline = None
     week_plan: List[WorkoutPlan] = None
+    program_summary: str = ""
     # workout_plan: WorkoutPlan = None
 
 class GenerateProgramFlow(Flow[ProgramState]):
-    def __init__(self, query: str = None, fms: dict = None):
+    def __init__(self, fms: dict = None, coach_notes: str = None):
         super().__init__()
-        self.query = query
         self.fms = fms
+        self.coach_notes = coach_notes
+        self.fitness_history = "minor ankle sprain in right ankle 5 years ago, but no other injuries. still active in tennis"
         self.days = 3
         self.weeks = 4
         self.model = "groq/llama-3.1-8b-instant"
@@ -36,7 +42,7 @@ class GenerateProgramFlow(Flow[ProgramState]):
         result = week_outline_crew.kickoff(
             inputs={
                 "fms": self.fms,
-                "fitness_history": "minor ankle sprain in right ankle 5 years ago, but no other injuries. still active in tennis",
+                "fitness_history": self.coach_notes,
                 "days": self.days,
             }
         )
@@ -113,7 +119,41 @@ class GenerateProgramFlow(Flow[ProgramState]):
         print("Full program generation completed")
         return full_program
 
+    @listen(generate_weekly_progressions)
+    def summarize_program(self, full_program: dict):
+        print("Summarizing program...")
         
+        plan_rationale = self.state.week_outline.rationale
+        response = completion(
+            model=self.model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": """
+                        As a personal trainer and coach with 20+ years of experience you've done multiple case studies on people 
+                        to deliver the most effective workouts and programs. You know how to help clients mitigate their risk of injury 
+                        and improve their quality of life. You are an expert at assessing the movement patterns of clients using the 
+                        Functional Movement Screen (FMS). You are able to analyze a client's fitness history, fms and physical readiness
+                        to generate appropriate exercise plans.
+                    """
+                },
+                {
+                    "role": "user",
+                    "content": f"""
+                        Review the program provided in {full_program}, the rationale for the program provided in {plan_rationale} 
+                        and the client's fitness history provided in {self.coach_notes}. Return a summary of the program as well as the rationale 
+                        for it in markdown format.
+                    """,
+                },
+            ],
+        )
+        program_summary = response["choices"][0]["message"]["content"]
+        self.state.program_summary = program_summary
+        return {
+            "program_summary": program_summary,
+            "full_program": full_program
+        }
+
     # def generate_city(self):
     #     print("Starting flow")
     #     # Each flow state automatically gets a unique ID

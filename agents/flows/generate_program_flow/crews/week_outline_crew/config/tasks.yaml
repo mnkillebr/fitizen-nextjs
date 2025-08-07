@@ -39,6 +39,7 @@ week_outline:
       finisher: An appropriate finisher for the workout that raises the heart rate and engages the aerobic system.
     
     This format should match the WeekOutline pydantic model. You must output a list where the length of the list is equal to the {days} variable.
+    Do not forget to include the rationale for the week outline based on the client's {fitness_history}.
 
 group_class:
   description: >

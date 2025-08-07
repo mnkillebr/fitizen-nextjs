@@ -36,7 +36,7 @@ export default function UserSettingsForm({ user }: { user: typeof User.$inferSel
   const handleExcelDownload = async () => {
     setIsDownloading(true);
     try {
-      const response = await fetch('/api/programs/test_flow/excel', {
+      const response = await fetch('/api/programs/program_flow/excel', {
         method: 'GET',
       });
 
@@ -154,7 +154,7 @@ export default function UserSettingsForm({ user }: { user: typeof User.$inferSel
       </Form>
 
       {/* Excel Download Button */}
-      <div className="pt-4 border-t">
+      {/* <div className="pt-4 border-t">
         <Button
           onClick={handleExcelDownload}
           disabled={isDownloading}
@@ -163,7 +163,7 @@ export default function UserSettingsForm({ user }: { user: typeof User.$inferSel
         >
           {isDownloading ? "Downloading..." : "Download Test Excel Program"}
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }

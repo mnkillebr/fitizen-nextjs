@@ -8,6 +8,7 @@ import { getCurrentUser } from "@/app/lib/dal";
 import { redirect } from "next/navigation";
 import UserSettingsForm from "./UserSettingsForm";
 import { FitnessSettings } from "./FitnessSettings";
+import { GenerateProgram } from "./GenerateProgram";
 import { getUserFitnessProfile } from "@/models/user.server";
 
 export default async function ProfilePage() {
@@ -26,6 +27,7 @@ export default async function ProfilePage() {
           <TabsList>
             <TabsTrigger value="general">General Settings</TabsTrigger>
             <TabsTrigger value="fitness">Fitness Profile</TabsTrigger>
+            <TabsTrigger value="fms">Functional Movement Screen</TabsTrigger>
           </TabsList>
           <TabsContent value="general" className="flex flex-col gap-y-4">
             <div className="text-muted-foreground">Manage your account settings and user information.</div>
@@ -46,6 +48,9 @@ export default async function ProfilePage() {
           </TabsContent>
           <TabsContent value="fitness">
             <FitnessSettings fitnessProfile={fitnessProfile ?? {}} />
+          </TabsContent>
+          <TabsContent value="fms">
+            <GenerateProgram />
           </TabsContent>
         </Tabs>
       </div>
