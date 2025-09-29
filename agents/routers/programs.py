@@ -334,22 +334,21 @@ async def program_flow_event_generator():
     """Generate SSE events from the listener queue"""
     while True:
         event = program_flow_listener.get_event()
+        print("program flow event", event)
         if event:
             if event["type"] == "flow_finished":
                 yield f"data: {json.dumps(event)}\n\n"
                 break
-            elif event["type"] == "method_finished":
-                yield f"data: {json.dumps(event)}\n\n"
-                break
+            # Stream all intermediate events (including method_started/finished, crew/agent events)
             yield f"data: {json.dumps(event)}\n\n"
         await asyncio.sleep(0.1)
 
 @router.get("/program_flow/events")
-async def get_crew_events():
+async def get_program_flow_events():
     """SSE endpoint for getting crew execution events"""
     return StreamingResponse(
         program_flow_event_generator(),
-        media_type="text/event-stream"
+        media_type="text/event-stream",
     )
 
 @router.post("/program_flow")

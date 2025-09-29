@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useCallback, useMemo, useState } from "react";
+import { useActionState, useCallback, useMemo, useState, useEffect } from "react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { AvailableExercises, SelectedExercises } from "./exercise-lists";
 import clsx from "clsx";
@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import Form from "next/form";
 import { createWorkout } from "@/app/actions/workout-action";
 import { SearchInput } from "@/components/SearchInput";
+import { useSearchParams } from "next/navigation";
+import { useCopilotChat } from "@copilotkit/react-core";
 
 type Card = {
   id: string;
@@ -60,7 +62,17 @@ export default function WorkoutBuilder({ exercises, page, totalPages }: { exerci
   const [createWorkoutState, createWorkoutDispatch] = useActionState(createWorkout, null);
   const [workoutCards, setWorkoutCards] = useState<Array<WorkoutCard | ComplexCard>>([]);
   const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
-
+  
+  const chat = useCopilotChat()
+  const searchParams = useSearchParams();
+  const bodyFocus = searchParams.get("bodyFocus");
+  const workoutStyle = searchParams.get("workoutStyle");
+  const numberOfExercises = searchParams.get("numberOfExercises");
+  console.log("chat", chat)
+  console.log("workoutCards", workoutCards, exercises)
+  console.log("bodyFocus", bodyFocus)
+  console.log("workoutStyle", workoutStyle)
+  console.log("numberOfExercises", numberOfExercises)
   const handleDragEnd = (result: DropResult) => {
     const { source, destination } = result;
 

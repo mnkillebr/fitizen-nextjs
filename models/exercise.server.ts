@@ -1,6 +1,6 @@
 import db from "@/db";
 import { Exercise } from "@/db/schema";
-import { eq, desc, ilike, and, asc, sql } from "drizzle-orm";
+import { eq, desc, ilike, and, asc, sql, or, inArray, arrayOverlaps } from "drizzle-orm";
 
 export async function getAllExercisesPaginated(query: string, page: number, limit: number = 10) {
   const offset = (page - 1) * limit;
@@ -22,4 +22,10 @@ export async function getAllExercisesPaginated(query: string, page: number, limi
     exercises,
     totalCount: count
   };
+}
+
+export async function getBodyFocusExercises(bodyFocus: 'upper' | 'lower' | 'core' | 'full') {
+  const exercises = await db.select().from(Exercise)
+    .where(arrayOverlaps(Exercise.body, [bodyFocus]))
+  return exercises;
 }

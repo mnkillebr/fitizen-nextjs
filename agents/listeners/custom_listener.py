@@ -16,10 +16,12 @@ class MyCustomListener(BaseEventListener):
         super().__init__()
         self.event_queue = Queue()
         self.crew_id = None
+        self.flow_id = None
 
     def setup_listeners(self, crewai_event_bus):
         @crewai_event_bus.on(CrewKickoffStartedEvent)
         def on_crew_started(source, event):
+            print(f"Crew started: {event.crew_name}")
             self.crew_id = event.crew_name
             self.event_queue.put({
                 "type": "crew_started",
@@ -29,16 +31,19 @@ class MyCustomListener(BaseEventListener):
 
         @crewai_event_bus.on(CrewKickoffCompletedEvent)
         def on_crew_completed(source, event):
+            print(f"Crew completed: {event.crew_name}")
             self.event_queue.put({
                 "type": "crew_completed",
                 "crew_name": event.crew_name,
-                "output": event.output,
+                # Convert to string to ensure JSON-serializable payloads
+                "output": str(event.output) if event.output is not None else None,
                 "timestamp": time.time()
             })
 
 
         @crewai_event_bus.on(AgentExecutionStartedEvent)
         def on_agent_execution_started(source, event):
+            print(f"Agent started: {event.agent.role}")
             self.event_queue.put({
                 "type": "agent_started",
                 "agent_role": event.agent.role,
@@ -47,15 +52,19 @@ class MyCustomListener(BaseEventListener):
 
         @crewai_event_bus.on(AgentExecutionCompletedEvent)
         def on_agent_execution_completed(source, event):
+            print(f"Agent completed: {event.agent.role}")
             self.event_queue.put({
                 "type": "agent_completed",
                 "agent_role": event.agent.role,
-                "output": event.output,
+                # Convert to string to ensure JSON-serializable payloads
+                "output": str(event.output) if event.output is not None else None,
                 "timestamp": time.time()
             })
 
         @crewai_event_bus.on(FlowStartedEvent)
         def on_flow_started(source, event):
+            print(f"Flow started: {event.flow_name}")
+            self.flow_id = event.flow_name
             self.event_queue.put({
                 "type": "flow_started",
                 "flow_name": event.flow_name,
@@ -64,15 +73,18 @@ class MyCustomListener(BaseEventListener):
 
         @crewai_event_bus.on(FlowFinishedEvent)
         def on_flow_finished(source, event):
+            print(f"Flow finished: {event.flow_name}")
             self.event_queue.put({
                 "type": "flow_finished",
                 "flow_name": event.flow_name,
-                "output": event.result,
+                # Convert to string to ensure JSON-serializable payloads
+                "output": str(event.result) if event.result is not None else None,
                 "timestamp": time.time()
             })
 
         @crewai_event_bus.on(MethodExecutionStartedEvent)
         def on_method_execution_started(source, event):
+            print(f"Method started: {event.flow_name} - {event.method_name}")
             self.event_queue.put({
                 "type": "method_started",
                 "flow_name": event.flow_name,
@@ -82,11 +94,13 @@ class MyCustomListener(BaseEventListener):
 
         @crewai_event_bus.on(MethodExecutionFinishedEvent)
         def on_method_execution_finished(source, event):
+            print(f"Method finished: {event.flow_name} - {event.method_name}")
             self.event_queue.put({
                 "type": "method_finished",
                 "flow_name": event.flow_name,
                 "method_name": event.method_name,
-                "output": event.result,
+                # Convert to string to ensure JSON-serializable payloads
+                "output": str(event.result) if event.result is not None else None,
                 "timestamp": time.time()
             })
 

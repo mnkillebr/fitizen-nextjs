@@ -160,7 +160,7 @@ function SelectedCircuitCard({
         </div>
         <button className="text-xs font-medium underline" onClick={() => handleUngroup(card.id)}>Ungroup</button>
       </div>
-      <div className="flex h-full w-full justify-between">
+      <div className="flex w-full justify-between">
         <div className="flex items-center">
           <Checkbox
             className="mr-2"
@@ -570,7 +570,7 @@ export function SelectedExercises({
             </Draggable>
           ))}
           {provided.placeholder}
-          <p className="hidden xl:flex h-full text-sm text-slate-400 dark:text-muted-foreground justify-center items-center p-4 border-2 bg-white dark:bg-background-muted border-dashed border-gray-300 rounded-md select-none">
+          <p className="hidden xl:flex flex-1 text-sm text-slate-400 dark:text-muted-foreground justify-center items-center p-4 border-2 bg-white dark:bg-background-muted border-dashed border-gray-300 rounded-md select-none">
             Drag 'n' drop exercise(s) here
           </p>
           <ExerciseDrawer

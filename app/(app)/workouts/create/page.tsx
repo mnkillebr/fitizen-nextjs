@@ -1,4 +1,4 @@
-import { getAllExercisesPaginated } from "@/models/exercise.server";
+import { getAllExercisesPaginated, getBodyFocusExercises } from "@/models/exercise.server";
 import { EXERCISE_ITEMS_PER_PAGE } from "@/lib/magicNumbers";
 import { generateMuxThumbnailToken, generateMuxVideoToken } from "@/app/lib/mux-tokens.server";
 import WorkoutBuilder from "./WorkoutBuilder";
@@ -9,6 +9,8 @@ export default async function CreateWorkoutPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { q: query = "", page = 1, tags } = await searchParams;
+  const bodyfocussss = await getBodyFocusExercises('core' as 'upper' | 'lower' | 'core' | 'full');
+  console.log("bodyfocussss", bodyfocussss)
   const { exercises, totalCount } = await getAllExercisesPaginated(
     query as string, 
     parseInt(page as string), 

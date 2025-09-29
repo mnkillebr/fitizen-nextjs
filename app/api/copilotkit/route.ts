@@ -5,7 +5,7 @@ import {
   copilotRuntimeNextJSAppRouterEndpoint,
 } from "@copilotkit/runtime";
 
-const serviceAdapter = new GroqAdapter({ model: "llama-3.1-8b-instant" });
+const serviceAdapter = new GroqAdapter({ model: "moonshotai/kimi-k2-instruct-0905" });
 const runtime = new CopilotRuntime({
   remoteEndpoints: [
     {

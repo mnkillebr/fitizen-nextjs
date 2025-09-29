@@ -1,16 +1,18 @@
 import yaml
 from crewai import Agent, Task, Crew, LLM, Process
 from core.config import settings
-from agents.listeners.custom_listener import MyCustomListener
+# from agents.listeners.custom_listener import MyCustomListener
 from agents.models.program import WeekOutline
 
-week_outline_listener = MyCustomListener()
+# week_outline_listener = MyCustomListener()
 
 import os
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY
 
 # initialize models
 llama8b_llm = LLM(model="groq/llama-3.1-8b-instant", api_key=settings.GROQ_API_KEY)
+llama_4_llm = LLM(model="groq/meta-llama/llama-4-maverick-17b-128e-instruct", api_key=settings.GROQ_API_KEY)
+kimi_k2_llm = LLM(model="groq/moonshotai/kimi-k2-instruct-0905", api_key=settings.GROQ_API_KEY)
 
 # Define file paths for YAML configurations
 files = {
@@ -37,7 +39,9 @@ fms_analysis_agent = Agent(
 week_outline_agent = Agent(
   config=agents_config['week_outline_agent'],
   # llm=llama8b_llm,
-  llm="gpt-4o",
+  # llm=llama_4_llm,
+  # llm=kimi_k2_llm,
+  llm="gpt-4.1",
   # reasoning=True,
 )
 

@@ -107,8 +107,21 @@ export function GenerateProgram() {
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
         let message = '';
-        
+        console.log("event data", data)
         switch(data.type) {
+          case 'flow_started':
+            message = `Flow ${data.flow_name ?? ''} started.`;
+            break;
+          case 'method_started':
+            message = `Method ${data.method_name ?? ''} started.`;
+            break;
+          case 'method_finished':
+            message = `Method ${data.method_name ?? ''} finished.`;
+            break;
+          case 'flow_finished':
+            message = `Flow ${data.flow_name ?? ''} finished.`;
+            eventSource.close();
+            break;
           case 'crew_started':
             message = `Crew ${data.crew_name} has started execution!`;
             break;
@@ -122,6 +135,8 @@ export function GenerateProgram() {
             message = `All program generation crews have completed! Your fitness program is ready.`;
             eventSource.close();
             break;
+          default:
+            message = `Event: ${data.type}`;
         }
 
         setEvents(prev => [...prev, {
