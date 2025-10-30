@@ -135,6 +135,7 @@
 .copilotKitWindow {
   border-radius: 16px !important;
   padding-bottom: 12px !important;
+  margin-bottom: 4px !important;
   background-color: var(--popover) !important;
 }
 

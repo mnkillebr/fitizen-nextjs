@@ -24,8 +24,20 @@ export async function getAllExercisesPaginated(query: string, page: number, limi
   };
 }
 
-export async function getBodyFocusExercises(bodyFocus: 'upper' | 'lower' | 'core' | 'full') {
+export async function getBodyFocusExercisesPaginated(bodyFocus: 'upper' | 'lower' | 'core' | 'full', page: number, limit: number = 10) {
+  const offset = (page - 1) * limit;
+  
+  const [{ count }] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(Exercise)
+    .where(arrayOverlaps(Exercise.body, [bodyFocus]))
   const exercises = await db.select().from(Exercise)
     .where(arrayOverlaps(Exercise.body, [bodyFocus]))
-  return exercises;
+    .orderBy(desc(Exercise.createdAt), asc(Exercise.name))
+    .limit(limit)
+    .offset(offset);
+  return {
+    exercises,
+    totalCount: count
+  };;
 }

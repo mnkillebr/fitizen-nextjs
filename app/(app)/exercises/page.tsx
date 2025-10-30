@@ -2,7 +2,7 @@ import { AppPagination } from "@/components/app-pagination";
 import { ExerciseCard } from "./ExerciseCard";
 import { Label } from "@/components/ui/label";
 import { EXERCISE_ITEMS_PER_PAGE } from "@/lib/magicNumbers";
-import { getAllExercisesPaginated } from "@/models/exercise.server";
+import { getAllExercisesPaginated, getBodyFocusExercisesPaginated } from "@/models/exercise.server";
 import clsx from "clsx";
 import { generateMuxThumbnailToken, generateMuxVideoToken } from "@/app/lib/mux-tokens.server";
 
@@ -11,12 +11,28 @@ export default async function ExercisesPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const { q: query = "", page = 1, tags } = await searchParams;
-  const { exercises, totalCount } = await getAllExercisesPaginated(
-    query as string, 
-    parseInt(page as string), 
-    EXERCISE_ITEMS_PER_PAGE
-  );
+  const { q: query = "", page = 1, tags, focus = "" } = await searchParams;
+  let exercises
+  let totalCount
+
+  if (focus) {
+    const { exercises: bodyFocusExercises, totalCount: bodyFocusTotalCount } = await getBodyFocusExercisesPaginated(
+      focus as "upper" | "lower" | "full" | "core", 
+      parseInt(page as string), 
+      EXERCISE_ITEMS_PER_PAGE
+    )
+    exercises = bodyFocusExercises
+    totalCount = bodyFocusTotalCount
+  } else {
+    const { exercises: allExercises, totalCount: allExercisesTotalCount } = await getAllExercisesPaginated(
+      query as string, 
+      parseInt(page as string), 
+      EXERCISE_ITEMS_PER_PAGE
+    );
+    exercises = allExercises
+    totalCount = allExercisesTotalCount
+  }
+  
   const totalPages = Math.ceil(totalCount / EXERCISE_ITEMS_PER_PAGE);
   const tokenMappedExercises = exercises ? exercises.map(ex_item => {
     const smartCrop = () => {

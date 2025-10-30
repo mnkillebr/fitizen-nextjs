@@ -6,7 +6,7 @@ import { useCopilotAction } from "@copilotkit/react-core";
 import { useRouter } from "next/navigation";
 
 export default function Copilot() {
-  // const router = useRouter();
+  const router = useRouter();
   // useCopilotAction({
   //   name: "createWorkout",
   //   description: `Create a new workout for the user. The user should be prompted to choose from upper, lower or full body focus.
@@ -37,6 +37,30 @@ export default function Copilot() {
   //     router.push(`/workouts/create?bodyFocus=${bodyFocus}&workoutStyle=${workoutStyle}&numberOfExercises=${numberOfExercises}`);
   //   },
   // })
+  useCopilotAction({
+    name: "findExercisesByFocus",
+    description: `
+      You are the Find Exercises By Body Focus Agent. Your fetch exercises that match the "bodyFocus" requested by the user.
+
+      Your job:
+      1. Determine the area of focus that the user wants to target for their workout.
+      2. The options are "upper", "lower", "full" or "core".
+      3. If the user does not provide an area of focus in their request, prompt them for it.
+
+      Notify the user that they have been routed to the exercises page and the results are ready.
+    `,
+    parameters: [
+      {
+        name: "bodyFocus",
+        type: "string",
+        description: "The body focus of the workout",
+        required: true,
+      },
+    ],
+    handler: async ({ bodyFocus }) => {
+      router.push(`/exercises?focus=${bodyFocus}`);
+    },
+  })
   useEffect(() => {
     const element = document.querySelector(".poweredBy");
     if (element) {
