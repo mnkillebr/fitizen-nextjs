@@ -64,7 +64,12 @@ export default function WorkoutBuilder({ exercises, page, totalPages, incomingEx
   const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
   
   useEffect(() => {
-    incomingExercises.length > 0 && setWorkoutCards(incomingExercises);
+    setTimeout(() => {
+      console.log("incomingExercises", incomingExercises)
+      if (incomingExercises.length > 0) {
+        setWorkoutCards(incomingExercises);
+      }
+    }, 1000)
   }, [incomingExercises]);
 
   const chat = useCopilotChat()

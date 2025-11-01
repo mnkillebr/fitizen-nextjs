@@ -38,6 +38,8 @@ export function ExerciseCard({ exercise, selectable, selectFn, selected, selectC
             src={exercise.thumbnail ?? "https://res.cloudinary.com/dqrk3drua/image/upload/f_auto,q_auto/cld-sample-3.jpg"}
             alt={exercise.name}
             fill
+            loading="eager"
+            sizes="(max-width: 580px) 100vw"
             className="object-cover"
             style={{ objectPosition: 'top center', cursor: 'pointer' }}
           />
