@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useCallback, useMemo, useState, useEffect } from "react";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { AvailableExercises, SelectedExercises } from "./exercise-lists";
 import clsx from "clsx";
 import { Label } from "@/components/ui/label";
@@ -82,14 +81,10 @@ export default function WorkoutBuilder({ exercises, page, totalPages, incomingEx
   console.log("bodyFocus", bodyFocus)
   console.log("workoutStyle", workoutStyle)
   console.log("numberOfExercises", numberOfExercises)
-  const handleDragEnd = (result: DropResult) => {
-    const { source, destination } = result;
-
-    if (!destination) return;
-
-    if (source.droppableId === 'availableCards' && destination.droppableId === 'workoutCards') {
-      const card = exercises[source.index];
-      // Create a new unique ID for the duplicate card
+  const handleDrop = useCallback((source: { type: string; exercise?: any; cardId?: string; index?: number }, destinationIndex: number) => {
+    if (source.type === 'exercise' && source.exercise) {
+      // Adding a new exercise from available exercises
+      const card = source.exercise;
       const newId = `${card.id}-${Date.now()}`;
       const newDeckCard: WorkoutCard = {
         ...card,
@@ -99,18 +94,21 @@ export default function WorkoutBuilder({ exercises, page, totalPages, incomingEx
       
       setWorkoutCards(prevWorkoutCards => {
         const newWorkoutCards = Array.from(prevWorkoutCards);
-        newWorkoutCards.splice(destination.index, 0, newDeckCard);
+        newWorkoutCards.splice(destinationIndex, 0, newDeckCard);
         return newWorkoutCards;
       });
-    } else if (source.droppableId === 'workoutCards' && destination.droppableId === 'workoutCards') {
+    } else if (source.type === 'workout-card' && source.cardId !== undefined && source.index !== undefined) {
+      // Reordering within workout cards
       setWorkoutCards(prevWorkoutCards => {
         const newWorkoutCards = Array.from(prevWorkoutCards);
-        const [reorderedItem] = newWorkoutCards.splice(source.index, 1);
-        newWorkoutCards.splice(destination.index, 0, reorderedItem);
+        const [reorderedItem] = newWorkoutCards.splice(source.index!, 1);
+        // Adjust destination index if dragging down
+        const adjustedIndex = source.index! < destinationIndex ? destinationIndex - 1 : destinationIndex;
+        newWorkoutCards.splice(adjustedIndex, 0, reorderedItem);
         return newWorkoutCards;
       });
     }
-  };
+  }, []);
 
   const handleAddExercise = (exercise: { id: string, name: string }) => {
     const newId = `${exercise.id}-${Date.now()}`;
@@ -250,7 +248,7 @@ export default function WorkoutBuilder({ exercises, page, totalPages, incomingEx
   }, [workoutCards])
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
+    <>
       {/* Create Workout Form */}
       <Form
         action={createWorkoutDispatch}
@@ -345,6 +343,7 @@ export default function WorkoutBuilder({ exercises, page, totalPages, incomingEx
           page={page}
           totalPages={totalPages}
           handleAddExercise={handleAddExercise}
+          onDrop={handleDrop}
         />
         {createWorkoutState?.server_error && <p className="text-red-500 text-sm">{createWorkoutState.server_error}</p>}
         {createWorkoutState?.errors && <p className="text-red-500 text-sm">{createWorkoutState.errors.exercises ? "Please add at least one exercise" : ""}</p>}
@@ -365,6 +364,6 @@ export default function WorkoutBuilder({ exercises, page, totalPages, incomingEx
         <AvailableExercises exercises={exercises} />
         <AppPagination page={page} totalPages={totalPages} />
       </div>
-    </DragDropContext>
+    </>
   )
 }

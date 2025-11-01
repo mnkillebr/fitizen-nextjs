@@ -1,8 +1,8 @@
 "use client";
 
-import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided, DropResult } from 'react-beautiful-dnd';
+import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { ExerciseCard } from "../../exercises/ExerciseCard";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CirclePlus, Grip } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -102,20 +102,6 @@ function ExerciseDrawer({
   )
 }
 
-const StrictModeDroppable = ({ children, ...props }: any) => {
-  const [enabled, setEnabled] = useState(false);
-  useEffect(() => {
-    const animation = requestAnimationFrame(() => setEnabled(true));
-    return () => {
-      cancelAnimationFrame(animation);
-      setEnabled(false);
-    };
-  }, []);
-  if (!enabled) {
-    return null;
-  }
-  return <Droppable {...props}>{children}</Droppable>;
-};
 
 function SelectedCircuitCard({
   card,
@@ -478,6 +464,93 @@ function SelectedExerciseCard({
   )
 }
 
+function DraggableWorkoutCard({
+  card,
+  index,
+  onChangeCircuitRounds,
+  handleUngroup,
+  handleCardSelect,
+  selectedCards,
+  flattenedWorkoutCards,
+  targetOptions,
+  restOptions,
+  onChangeCircuitTarget,
+  onChangeCircuitRest,
+  onChangeTarget,
+}: {
+  card: any,
+  index: number,
+  onChangeCircuitRounds: (cardId: string, rounds: string) => void,
+  handleUngroup: (cardId: string) => void,
+  handleCardSelect: (cardId: string) => void,
+  selectedCards: Set<string>,
+  flattenedWorkoutCards: any[],
+  targetOptions: any[],
+  restOptions: any[],
+  onChangeCircuitTarget: (cardId: string, exItemId: string, target: string) => void,
+  onChangeCircuitRest: (cardId: string, rest: string) => void,
+  onChangeTarget: (val: string, cardId: string) => void,
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    return draggable({
+      element,
+      getInitialData: () => ({ type: 'workout-card', cardId: card.id, index }),
+      onDragStart: () => setIsDragging(true),
+      onDrop: () => setIsDragging(false),
+    });
+  }, [card.id, index]);
+
+  if (card.circuitId) {
+    return (
+      <div
+        ref={ref}
+        className="flex flex-col mb-2 p-2 bg-gray-100 dark:bg-background-muted dark:border dark:border-border-muted rounded shadow overflow-x-hidden"
+        style={{ opacity: isDragging ? 0.5 : 1 }}
+        data-workout-card-index={index}
+      >
+        <SelectedCircuitCard
+          card={card}
+          onChangeCircuitRounds={onChangeCircuitRounds}
+          handleUngroup={handleUngroup}
+          handleCardSelect={handleCardSelect}
+          selectedCards={selectedCards}
+          flattenedWorkoutCards={flattenedWorkoutCards}
+          targetOptions={targetOptions}
+          restOptions={restOptions}
+          onChangeCircuitTarget={onChangeCircuitTarget}
+          onChangeCircuitRest={onChangeCircuitRest}
+        />
+      </div>
+    );
+  } else {
+    const exerciseIndex = flattenedWorkoutCards.findIndex((workoutCard: any) => workoutCard.id === card.id);
+    return (
+      <div
+        ref={ref}
+        className="flex items-center gap-2 mb-2 p-2 bg-gray-100 dark:bg-background-muted dark:border dark:border-border-muted rounded shadow"
+        style={{ opacity: isDragging ? 0.5 : 1 }}
+        data-workout-card-index={index}
+      >
+        <SelectedExerciseCard
+          card={card}
+          exerciseIndex={exerciseIndex}
+          selectedCards={selectedCards}
+          handleCardSelect={handleCardSelect}
+          targetOptions={targetOptions}
+          restOptions={restOptions}
+          onChangeTarget={onChangeTarget}
+        />
+      </div>
+    );
+  }
+}
+
 export function SelectedExercises({
   workoutCards,
   onChangeCircuitRounds,
@@ -493,7 +566,8 @@ export function SelectedExercises({
   exercises,
   page,
   totalPages,
-  handleAddExercise
+  handleAddExercise,
+  onDrop,
 }: {
   workoutCards: any[],
   onChangeCircuitRounds: (cardId: string, rounds: string) => void,
@@ -509,118 +583,129 @@ export function SelectedExercises({
   exercises: any[],
   page: number,
   totalPages: number,
-  handleAddExercise: (exercise: any) => void
+  handleAddExercise: (exercise: any) => void,
+  onDrop: (source: { type: string; exercise?: any; cardId?: string; index?: number }, destinationIndex: number) => void,
 }) {
+  const dropTargetRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const element = dropTargetRef.current;
+    if (!element) return;
+
+    return dropTargetForElements({
+      element,
+      onDrop: (args) => {
+        const sourceData = args.source.data as any;
+        
+        // Calculate insertion index based on mouse position
+        let destinationIndex = workoutCards.length;
+        const lastLocation = args.location.initial.input.clientY !== undefined 
+          ? args.location.current 
+          : args.location.initial;
+        
+        if (lastLocation.input.clientY) {
+          const cards = Array.from(element.children).filter(child => 
+            child.classList.contains('mb-2') || child.getAttribute('data-workout-card-index') !== null
+          );
+          
+          for (let i = 0; i < cards.length; i++) {
+            const card = cards[i] as HTMLElement;
+            const rect = card.getBoundingClientRect();
+            if (lastLocation.input.clientY && lastLocation.input.clientY < rect.top + rect.height / 2) {
+              destinationIndex = i;
+              break;
+            }
+            destinationIndex = i + 1;
+          }
+        }
+        
+        onDrop(sourceData, destinationIndex);
+      },
+      getIsSticky: () => true,
+    });
+  }, [workoutCards.length, onDrop]);
+
   return (
-    <StrictModeDroppable droppableId="workoutCards" isDropDisabled={false}>
-      {(provided: DroppableProvided) => (
-        <div
-          {...provided.droppableProps}
-          ref={provided.innerRef}
-          className="flex-1 overflow-y-auto flex flex-col shadow-inner bg-slate-200 dark:bg-background rounded-md p-3 overflow-x-hidden border dark:border-border-muted"
-          id="selected-exercises"
-        >
-          {workoutCards.map((card: any, index: number) => (
-            <Draggable key={card.id} draggableId={card.id} index={index}>
-              {(provided: DraggableProvided) => {
-                if (card.circuitId) {
-                  return (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className="flex flex-col mb-2 p-2 bg-gray-100 dark:bg-background-muted dark:border dark:border-border-muted rounded shadow overflow-x-hidden"
-                    >
-                      <SelectedCircuitCard
-                        card={card}
-                        onChangeCircuitRounds={onChangeCircuitRounds}
-                        handleUngroup={handleUngroup}
-                        handleCardSelect={handleCardSelect}
-                        selectedCards={selectedCards}
-                        flattenedWorkoutCards={flattenedWorkoutCards}
-                        targetOptions={targetOptions}
-                        restOptions={restOptions}
-                        onChangeCircuitTarget={onChangeCircuitTarget}
-                        onChangeCircuitRest={onChangeCircuitRest}
-                      />
-                    </div>
-                  )
-                } else {
-                  const exerciseIndex = flattenedWorkoutCards.findIndex((workoutCard: any) => workoutCard.id === card.id)
-                  return (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className="flex items-center gap-2 mb-2 p-2 bg-gray-100 dark:bg-background-muted dark:border dark:border-border-muted rounded shadow"
-                    >
-                      <SelectedExerciseCard
-                        card={card}
-                        exerciseIndex={exerciseIndex}
-                        selectedCards={selectedCards}
-                        handleCardSelect={handleCardSelect}
-                        targetOptions={targetOptions}
-                        restOptions={restOptions}
-                        onChangeTarget={onChangeTarget}
-                      />  
-                    </div>
-                  )
-                }
-              }}
-            </Draggable>
-          ))}
-          {provided.placeholder}
-          <p className="hidden xl:flex flex-1 text-sm text-slate-400 dark:text-muted-foreground justify-center items-center p-4 border-2 bg-white dark:bg-background-muted border-dashed border-gray-300 rounded-md select-none">
-            Drag 'n' drop exercise(s) here
-          </p>
-          <ExerciseDrawer
-            exercises={exercises}
-            page={page}
-            totalPages={totalPages}
-            handleAddExercise={handleAddExercise}
-            flattenedWorkoutCards={flattenedWorkoutCards}
-          >
-            <div className="xl:hidden h-full border-2 border-dashed border-gray-300 bg-white dark:bg-background-muted rounded-md px-3 py-2 flex flex-col justify-center items-center my-1 cursor-pointer">
-            <p className="text-sm text-slate-400 dark:text-muted-foreground select-none">Add exercise (s)</p>
-              <CirclePlus className="size-8 text-primary"/>
-            </div>
-          </ExerciseDrawer>
+    <div
+      ref={dropTargetRef}
+      className="flex-1 overflow-y-auto flex flex-col shadow-inner bg-slate-200 dark:bg-background rounded-md p-3 overflow-x-hidden border dark:border-border-muted"
+      id="selected-exercises"
+    >
+      {workoutCards.map((card: any, index: number) => (
+        <DraggableWorkoutCard
+          key={card.id}
+          card={card}
+          index={index}
+          onChangeCircuitRounds={onChangeCircuitRounds}
+          handleUngroup={handleUngroup}
+          handleCardSelect={handleCardSelect}
+          selectedCards={selectedCards}
+          flattenedWorkoutCards={flattenedWorkoutCards}
+          targetOptions={targetOptions}
+          restOptions={restOptions}
+          onChangeCircuitTarget={onChangeCircuitTarget}
+          onChangeCircuitRest={onChangeCircuitRest}
+          onChangeTarget={onChangeTarget}
+        />
+      ))}
+      <p className="hidden xl:flex flex-1 text-sm text-slate-400 dark:text-muted-foreground justify-center items-center p-4 border-2 bg-white dark:bg-background-muted border-dashed border-gray-300 rounded-md select-none">
+        Drag 'n' drop exercise(s) here
+      </p>
+      <ExerciseDrawer
+        exercises={exercises}
+        page={page}
+        totalPages={totalPages}
+        handleAddExercise={handleAddExercise}
+        flattenedWorkoutCards={flattenedWorkoutCards}
+      >
+        <div className="xl:hidden h-full border-2 border-dashed border-gray-300 bg-white dark:bg-background-muted rounded-md px-3 py-2 flex flex-col justify-center items-center my-1 cursor-pointer">
+          <p className="text-sm text-slate-400 dark:text-muted-foreground select-none">Add exercise (s)</p>
+          <CirclePlus className="size-8 text-primary"/>
         </div>
-      )}
-    </StrictModeDroppable>
-  )
+      </ExerciseDrawer>
+    </div>
+  );
+}
+
+function DraggableExerciseCard({ exercise }: { exercise: any }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    return draggable({
+      element,
+      getInitialData: () => ({ type: 'exercise', exercise }),
+      onDragStart: () => setIsDragging(true),
+      onDrop: () => setIsDragging(false),
+    });
+  }, [exercise]);
+
+  return (
+    <div
+      ref={ref}
+      className="snap-start *:select-none"
+      style={{
+        opacity: isDragging ? 0.5 : 1,
+        cursor: 'grab',
+      }}
+    >
+      <ExerciseCard exercise={exercise} draggable />
+    </div>
+  );
 }
 
 export function AvailableExercises({ exercises }: { exercises: any[] }) {
   return (
-    <StrictModeDroppable droppableId="availableCards" isDropDisabled={true} isCombineEnabled={false} ignoreContainerClipping={true}>
-      {(provided: DroppableProvided) => (
-        <div
-          {...provided.droppableProps}
-          ref={provided.innerRef}
-          className="flex flex-col gap-y-2 2xl:grid 2xl:grid-cols-2 2xl:gap-y-3 gap-x-3 overflow-y-auto pb-4 snap-y snap-mandatory"
-          id="available-exercises-list"
-        >
-          {exercises.map((exercise, index) => (
-            <Draggable key={exercise.id} draggableId={exercise.id} index={index}>
-              {(provided: DraggableProvided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  className="snap-start *:select-none"
-                  style={{
-                    ...provided.draggableProps.style,
-                    transform: snapshot.isDragging ? provided.draggableProps.style?.transform : 'translate(0px, 0px)',
-                  }}
-                >
-                  <ExerciseCard exercise={exercise} draggable />
-                </div>
-              )}
-            </Draggable>
-          ))}
-        </div>
-      )}
-    </StrictModeDroppable>
-  )
+    <div
+      className="flex flex-col gap-y-2 2xl:grid 2xl:grid-cols-2 2xl:gap-y-3 gap-x-3 overflow-y-auto pb-4 snap-y snap-mandatory"
+      id="available-exercises-list"
+    >
+      {exercises.map((exercise) => (
+        <DraggableExerciseCard key={exercise.id} exercise={exercise} />
+      ))}
+    </div>
+  );
 }
