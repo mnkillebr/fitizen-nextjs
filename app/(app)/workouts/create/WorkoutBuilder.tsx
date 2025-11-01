@@ -58,11 +58,15 @@ const restOptions = [
   {value: "5 min", label: "5 min"},
 ]
 
-export default function WorkoutBuilder({ exercises, page, totalPages }: { exercises: any[], page: number, totalPages: number }) {
+export default function WorkoutBuilder({ exercises, page, totalPages, incomingExercises = [] }: { exercises: any[], page: number, totalPages: number, incomingExercises?: any[] }) {
   const [createWorkoutState, createWorkoutDispatch] = useActionState(createWorkout, null);
   const [workoutCards, setWorkoutCards] = useState<Array<WorkoutCard | ComplexCard>>([]);
   const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
   
+  useEffect(() => {
+    incomingExercises.length > 0 && setWorkoutCards(incomingExercises);
+  }, [incomingExercises]);
+
   const chat = useCopilotChat()
   const searchParams = useSearchParams();
   const bodyFocus = searchParams.get("bodyFocus");

@@ -5,7 +5,7 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import clsx from "clsx"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useDebounce } from "@/hooks/use-debounce"
 
 export function SearchInput({ searchField }: { searchField: string }) {
@@ -14,6 +14,7 @@ export function SearchInput({ searchField }: { searchField: string }) {
   const router = useRouter();
   const [searchValue, setSearchValue] = useState(searchParams.get("q") ?? "");
   const debouncedSearch = useDebounce(searchValue, 300);
+  const lastSyncedDebouncedValue = useRef<string>(debouncedSearch);
 
   useEffect(() => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -23,7 +24,15 @@ export function SearchInput({ searchField }: { searchField: string }) {
       newSearchParams.delete("q");
     }
     router.push(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
-  }, [debouncedSearch, pathname, router, searchParams]);
+    lastSyncedDebouncedValue.current = debouncedSearch;
+  }, [debouncedSearch, pathname, router]);
+
+  useEffect(() => {
+    const urlValue = searchParams.get("q") ?? "";
+    if (urlValue !== lastSyncedDebouncedValue.current && urlValue !== searchValue) {
+      setSearchValue(urlValue);
+    }
+  }, [searchParams]);
 
   return (
     <div className="relative mb-2">

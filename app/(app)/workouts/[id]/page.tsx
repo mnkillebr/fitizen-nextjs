@@ -170,10 +170,12 @@ export default async function WorkoutIdPage({
                 <CalendarIcon className="h-4" />
                 Add to Calendar
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <PencilIcon className="h-4" />
-                Edit
-              </DropdownMenuItem>
+              <Link href={`/workouts/edit?id=${workout.id}`}>
+                <DropdownMenuItem>
+                  <PencilIcon className="h-4" />
+                  Edit
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuItem>
                 <TrashIcon className="h-4" />
                 Delete
